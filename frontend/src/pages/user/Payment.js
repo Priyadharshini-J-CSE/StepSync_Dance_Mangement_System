@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import Alert from '../../components/Alert';
 
 const Payment = () => {
   const { classId } = useParams();
@@ -11,6 +12,7 @@ const Payment = () => {
   const [classData, setClassData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false);
+  const [alert, setAlert] = useState(null);
   const [paymentData, setPaymentData] = useState({
     paymentMethod: 'credit_card',
     cardNumber: '',
@@ -59,13 +61,13 @@ const Payment = () => {
       });
 
       // Show receipt
-      alert('Payment successful! Receipt generated.');
+      setAlert({ message: 'Payment successful! Receipt generated.', type: 'success' });
       
       // Navigate to payment history or show receipt
-      navigate('/user/payment-history');
+      setTimeout(() => navigate('/user/payment-history'), 2000);
     } catch (error) {
       console.error('Payment failed:', error);
-      alert('Payment failed. Please try again.');
+      setAlert({ message: 'Payment failed. Please try again.', type: 'error' });
     }
     setProcessing(false);
   };
@@ -83,6 +85,7 @@ const Payment = () => {
   return (
     <div style={{ maxWidth: '600px', margin: '0 auto' }}>
       <h2>Payment</h2>
+      {alert && <Alert message={alert.message} type={alert.type} onClose={() => setAlert(null)} />}
       
       {/* Order Summary */}
       <div style={{

@@ -42,24 +42,32 @@ router.post('/accept-request/:requestId', adminAuth, async (req, res) => {
       return res.status(404).json({ message: 'Request not found' });
     }
 
+    // Check if admin owns this class
+    const classData = await Class.findOne({ _id: request.class._id, createdBy: req.user._id });
+    if (!classData) {
+      return res.status(403).json({ message: 'Unauthorized to accept this request' });
+    }
+
     // Update request status
     request.status = 'accepted';
     request.responseDate = new Date();
     await request.save();
-
-    // User can be active for this specific class, but overall status remains separate
 
     // Add user to class enrolled list
     await Class.findByIdAndUpdate(request.class._id, {
       $addToSet: { enrolled: request.user._id }
     });
 
-    // Create notification for user
+    // Create notification for user with meeting link if online class
+    const acceptMessage = classData.mode === 'online' 
+      ? `Your request to join "${request.class.name}" has been accepted. Meeting link: ${classData.meetingLink}`
+      : `Your request to join "${request.class.name}" has been accepted`;
+    
     await new Notification({
       recipient: request.user._id,
       sender: req.user._id,
       type: 'class_accepted',
-      message: `Your request to join "${request.class.name}" has been accepted`,
+      message: acceptMessage,
       relatedClass: request.class._id
     }).save();
 
@@ -78,6 +86,12 @@ router.post('/reject-request/:requestId', adminAuth, async (req, res) => {
     
     if (!request) {
       return res.status(404).json({ message: 'Request not found' });
+    }
+
+    // Check if admin owns this class
+    const classData = await Class.findOne({ _id: request.class._id, createdBy: req.user._id });
+    if (!classData) {
+      return res.status(403).json({ message: 'Unauthorized to reject this request' });
     }
 
     // Update request status

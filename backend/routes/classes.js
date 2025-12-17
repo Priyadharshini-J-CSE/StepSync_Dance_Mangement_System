@@ -10,7 +10,10 @@ const router = express.Router();
 // Get all classes
 router.get('/', auth, async (req, res) => {
   try {
-    const classes = await Class.find({ isActive: true }).populate('createdBy', 'name');
+    const classes = await Class.find({ 
+      isActive: true,
+      ...(req.user.role === 'admin' ? { createdBy: req.user._id } : {})
+    }).populate('createdBy', 'name');
     res.json(classes);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -21,19 +24,17 @@ router.get('/', auth, async (req, res) => {
 router.post('/', adminAuth, async (req, res) => {
   try {
     const classData = { ...req.body, createdBy: req.user._id };
+    
     const newClass = new Class(classData);
     await newClass.save();
+    
+    // Auto-generate internal meeting link for online classes
+    if (classData.mode === 'online') {
+      newClass.meetingLink = `/video-call/${newClass._id}`;
+      await newClass.save();
+    }
 
-    // Notify all users about new class
-    const users = await User.find({ role: 'user' });
-    const notifications = users.map(user => ({
-      recipient: user._id,
-      sender: req.user._id,
-      type: 'class_created',
-      message: `New class "${newClass.name}" has been created`,
-      relatedClass: newClass._id
-    }));
-    await Notification.insertMany(notifications);
+    // Only enrolled users get notifications (none initially)
 
     res.status(201).json(newClass);
   } catch (error) {
@@ -44,7 +45,15 @@ router.post('/', adminAuth, async (req, res) => {
 // Update class (Admin only)
 router.put('/:id', adminAuth, async (req, res) => {
   try {
-    const updatedClass = await Class.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    const updatedClass = await Class.findOneAndUpdate(
+      { _id: req.params.id, createdBy: req.user._id },
+      req.body,
+      { new: true }
+    );
+    
+    if (!updatedClass) {
+      return res.status(404).json({ message: 'Class not found or unauthorized' });
+    }
     
     // Notify enrolled users about class update
     const enrolledUsers = updatedClass.enrolled;
@@ -66,7 +75,11 @@ router.put('/:id', adminAuth, async (req, res) => {
 // Delete class (Admin only)
 router.delete('/:id', adminAuth, async (req, res) => {
   try {
-    const classToDelete = await Class.findById(req.params.id);
+    const classToDelete = await Class.findOne({ _id: req.params.id, createdBy: req.user._id });
+    
+    if (!classToDelete) {
+      return res.status(404).json({ message: 'Class not found or unauthorized' });
+    }
     
     // Notify enrolled users about class deletion
     const notifications = classToDelete.enrolled.map(userId => ({
@@ -130,9 +143,31 @@ router.post('/:id/request', auth, async (req, res) => {
 // Get class requests (Admin only)
 router.get('/requests', adminAuth, async (req, res) => {
   try {
-    const requests = await ClassRequest.find({ status: 'pending' })
+    const { status = 'pending' } = req.query;
+    
+    // Get admin's classes first
+    const adminClasses = await Class.find({ createdBy: req.user._id }).select('_id');
+    const adminClassIds = adminClasses.map(c => c._id);
+    
+    const requests = await ClassRequest.find({ 
+      status,
+      class: { $in: adminClassIds }
+    })
       .populate('user', 'name email')
-      .populate('class', 'name');
+      .populate('class', 'name')
+      .sort({ requestDate: -1 });
+    res.json(requests);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Get user's class requests
+router.get('/my-requests', auth, async (req, res) => {
+  try {
+    const requests = await ClassRequest.find({ user: req.user._id })
+      .populate('class', 'name schedule packages')
+      .sort({ requestDate: -1 });
     res.json(requests);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -142,13 +177,21 @@ router.get('/requests', adminAuth, async (req, res) => {
 // Get enrolled users for a class (Admin only)
 router.get('/:id/enrolled', adminAuth, async (req, res) => {
   try {
-    const classData = await Class.findById(req.params.id).populate('enrolled', 'name email');
-    console.log('Class enrolled users:', classData.enrolled);
+    const classData = await Class.findOne({ 
+      _id: req.params.id, 
+      createdBy: req.user._id 
+    }).populate('enrolled', 'name email');
+    
+    if (!classData) {
+      return res.status(404).json({ message: 'Class not found or unauthorized' });
+    }
+    
     res.json(classData.enrolled || []);
   } catch (error) {
-    console.error('Error getting enrolled users:', error);
     res.status(500).json({ message: error.message });
   }
 });
+
+
 
 module.exports = router;

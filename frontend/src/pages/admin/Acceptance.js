@@ -4,14 +4,15 @@ import axios from 'axios';
 const Acceptance = () => {
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState('pending');
 
   useEffect(() => {
-    fetchRequests();
-  }, []);
+    fetchRequests(activeTab);
+  }, [activeTab]);
 
-  const fetchRequests = async () => {
+  const fetchRequests = async (status = 'pending') => {
     try {
-      const response = await axios.get('/api/classes/requests');
+      const response = await axios.get(`/api/classes/requests?status=${status}`);
       setRequests(response.data);
       setLoading(false);
     } catch (error) {
@@ -23,7 +24,7 @@ const Acceptance = () => {
   const handleAccept = async (requestId) => {
     try {
       await axios.post(`/api/notifications/accept-request/${requestId}`);
-      fetchRequests(); // Refresh the list
+      fetchRequests(activeTab);
     } catch (error) {
       console.error('Error accepting request:', error);
     }
@@ -33,7 +34,7 @@ const Acceptance = () => {
     if (window.confirm('Are you sure you want to reject this request? Payment will be refunded.')) {
       try {
         await axios.post(`/api/notifications/reject-request/${requestId}`);
-        fetchRequests(); // Refresh the list
+        fetchRequests(activeTab);
       } catch (error) {
         console.error('Error rejecting request:', error);
       }
@@ -48,6 +49,47 @@ const Acceptance = () => {
     <div>
       <h2>Class Registration Requests</h2>
       
+      <div style={{ marginBottom: '2rem' }}>
+        <button
+          onClick={() => setActiveTab('pending')}
+          style={{
+            backgroundColor: activeTab === 'pending' ? '#007bff' : '#f8f9fa',
+            color: activeTab === 'pending' ? 'white' : '#333',
+            border: '1px solid #ddd',
+            padding: '0.5rem 1rem',
+            marginRight: '0.5rem',
+            cursor: 'pointer'
+          }}
+        >
+          Pending
+        </button>
+        <button
+          onClick={() => setActiveTab('accepted')}
+          style={{
+            backgroundColor: activeTab === 'accepted' ? '#007bff' : '#f8f9fa',
+            color: activeTab === 'accepted' ? 'white' : '#333',
+            border: '1px solid #ddd',
+            padding: '0.5rem 1rem',
+            marginRight: '0.5rem',
+            cursor: 'pointer'
+          }}
+        >
+          Accepted
+        </button>
+        <button
+          onClick={() => setActiveTab('rejected')}
+          style={{
+            backgroundColor: activeTab === 'rejected' ? '#007bff' : '#f8f9fa',
+            color: activeTab === 'rejected' ? 'white' : '#333',
+            border: '1px solid #ddd',
+            padding: '0.5rem 1rem',
+            cursor: 'pointer'
+          }}
+        >
+          Rejected
+        </button>
+      </div>
+      
       {requests.length === 0 ? (
         <div style={{
           textAlign: 'center',
@@ -56,8 +98,8 @@ const Acceptance = () => {
           borderRadius: '8px',
           marginTop: '2rem'
         }}>
-          <h3>No pending requests</h3>
-          <p>All class registration requests have been processed.</p>
+          <h3>No {activeTab} requests</h3>
+          <p>No {activeTab} class registration requests found.</p>
         </div>
       ) : (
         <div style={{ marginTop: '2rem' }}>
@@ -75,9 +117,6 @@ const Acceptance = () => {
                     {request.user?.name || 'Unknown User'}
                   </h4>
                   <p style={{ color: '#666', marginBottom: '0.25rem' }}>
-                    <strong>Email:</strong> {request.user?.email}
-                  </p>
-                  <p style={{ color: '#666', marginBottom: '0.25rem' }}>
                     <strong>Class:</strong> {request.class?.name}
                   </p>
                   <p style={{ color: '#666', marginBottom: '0.25rem' }}>
@@ -86,26 +125,9 @@ const Acceptance = () => {
                   <p style={{ color: '#666', marginBottom: '0.25rem' }}>
                     <strong>Request Date:</strong> {new Date(request.requestDate).toLocaleDateString()}
                   </p>
-                  <p style={{ color: '#666', marginBottom: '0.25rem' }}>
-                    <strong>Auto-reject Date:</strong> {new Date(request.autoRejectDate).toLocaleDateString()}
-                  </p>
-                  <div style={{
-                    display: 'inline-block',
-                    padding: '0.25rem 0.75rem',
-                    borderRadius: '4px',
-                    backgroundColor: request.status === 'pending' ? '#fff3cd' : 
-                                   request.status === 'accepted' ? '#d4edda' : 
-                                   request.status === 'inactive' ? '#e2e3e5' : '#f8d7da',
-                    color: request.status === 'pending' ? '#856404' : 
-                           request.status === 'accepted' ? '#155724' : 
-                           request.status === 'inactive' ? '#383d41' : '#721c24',
-                    marginTop: '0.5rem'
-                  }}>
-                    Class Status: {request.status.charAt(0).toUpperCase() + request.status.slice(1)}
-                  </div>
                 </div>
                 
-                {request.status === 'pending' && (
+                {activeTab === 'pending' && (
                   <div style={{ display: 'flex', gap: '0.5rem', marginLeft: '1rem' }}>
                     <button
                       onClick={() => handleAccept(request._id)}
@@ -138,19 +160,6 @@ const Acceptance = () => {
                   </div>
                 )}
               </div>
-              
-              {new Date(request.autoRejectDate) <= new Date() && request.status === 'pending' && (
-                <div style={{
-                  marginTop: '1rem',
-                  padding: '0.75rem',
-                  backgroundColor: '#f8d7da',
-                  color: '#721c24',
-                  borderRadius: '4px',
-                  fontSize: '14px'
-                }}>
-                  ⚠️ This request has expired and will be automatically rejected with payment refund.
-                </div>
-              )}
             </div>
           ))}
         </div>

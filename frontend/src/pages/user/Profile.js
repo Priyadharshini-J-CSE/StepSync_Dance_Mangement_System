@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAuth } from '../../context/AuthContext';
+import Alert from '../../components/Alert';
 
 const Profile = () => {
   const { user } = useAuth();
@@ -11,93 +12,226 @@ const Profile = () => {
     phone: user?.phone || '',
     address: user?.address || ''
   });
+  const [alert, setAlert] = useState(null);
+  const [profileStats, setProfileStats] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchProfileStats();
+  }, []);
+
+  const fetchProfileStats = async () => {
+    try {
+      const response = await axios.get('/api/attendance/user/profile');
+      setProfileStats(response.data);
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching profile stats:', error);
+      setLoading(false);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.put('/api/auth/profile', formData);
-      window.location.reload();
+      await axios.put('/api/auth/profile', formData);
       setIsEditing(false);
-      alert('Profile updated successfully!');
+      setAlert({ message: 'Profile updated successfully!', type: 'success' });
+      setTimeout(() => window.location.reload(), 2000);
     } catch (error) {
       console.error('Error updating profile:', error);
-      alert('Failed to update profile');
+      setAlert({ message: 'Failed to update profile', type: 'error' });
     }
   };
 
-  const getStatusInfo = (status) => {
-    switch (status) {
-      case 'inactive':
-        return {
-          color: '#6c757d',
-          backgroundColor: '#f8f9fa',
-          description: 'Your profile is inactive. Register for a class to activate it.'
-        };
-      case 'pending':
-        return {
-          color: '#856404',
-          backgroundColor: '#fff3cd',
-          description: 'Your class registration is pending admin approval.'
-        };
-      case 'active':
-        return {
-          color: '#155724',
-          backgroundColor: '#d4edda',
-          description: 'Your profile is active! You can attend classes.'
-        };
-      default:
-        return {
-          color: '#6c757d',
-          backgroundColor: '#f8f9fa',
-          description: 'Status unknown'
-        };
-    }
+  const renderStars = (stars) => {
+    return Array.from({ length: 5 }, (_, i) => (
+      <span key={i} style={{ color: i < stars ? '#ffd700' : '#ddd', fontSize: '1.5rem' }}>
+        ★
+      </span>
+    ));
   };
 
-  const statusInfo = getStatusInfo(user?.status);
+  const getRankColor = (rank, total) => {
+    const percentage = (rank / total) * 100;
+    if (percentage <= 10) return '#ffd700'; // Gold
+    if (percentage <= 25) return '#c0c0c0'; // Silver
+    if (percentage <= 50) return '#cd7f32'; // Bronze
+    return '#666';
+  };
+
+  if (loading) {
+    return <div style={{ padding: '2rem' }}>Loading profile...</div>;
+  }
 
   return (
-    <div>
-      <h2>My Profile</h2>
+    <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '2rem' }}>
+      {alert && <Alert message={alert.message} type={alert.type} onClose={() => setAlert(null)} />}
       
-      {/* Profile Status Card */}
+      {/* Header Section */}
       <div style={{
-        backgroundColor: statusInfo.backgroundColor,
-        color: statusInfo.color,
-        padding: '1.5rem',
-        borderRadius: '8px',
+        backgroundColor: 'white',
+        padding: '2rem',
+        borderRadius: '12px',
+        boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
         marginBottom: '2rem',
-        border: `1px solid ${statusInfo.color}33`
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        color: 'white'
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '0.5rem' }}>
-          <div style={{ fontSize: '1.5rem' }}>
-            {user?.status === 'active' ? '✅' : user?.status === 'pending' ? '⏳' : '⚪'}
-          </div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
-            <h3 style={{ margin: 0, fontSize: '1.2rem' }}>
-              Profile Status: {user?.status?.toUpperCase()}
-            </h3>
-            <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.9rem' }}>
-              {statusInfo.description}
-            </p>
+            <h1 style={{ margin: '0 0 0.5rem 0', fontSize: '2.5rem' }}>{user?.name}</h1>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
+              <div>{renderStars(profileStats?.starRating || 1)}</div>
+              <div style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>
+                {profileStats?.skillPoints || 0} Points
+              </div>
+            </div>
+            <div style={{ fontSize: '1.1rem', opacity: 0.9 }}>
+              Global Rank: #{profileStats?.globalRank || 'N/A'} of {profileStats?.totalUsers || 0}
+            </div>
+          </div>
+          <div style={{ textAlign: 'right' }}>
+            <div style={{ fontSize: '3rem', fontWeight: 'bold' }}>
+              {profileStats?.completedCourses || 0}
+            </div>
+            <div>Courses Completed</div>
           </div>
         </div>
+      </div>
+
+      {/* Stats Grid */}
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+        gap: '1rem',
+        marginBottom: '2rem'
+      }}>
+        <div style={{
+          backgroundColor: 'white',
+          padding: '1.5rem',
+          borderRadius: '8px',
+          boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+          textAlign: 'center'
+        }}>
+          <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#007bff' }}>
+            {profileStats?.totalAttendance || 0}
+          </div>
+          <div style={{ color: '#666' }}>Total Classes</div>
+        </div>
         
-        {user?.status === 'inactive' && (
-          <div style={{ marginTop: '1rem', fontSize: '0.9rem' }}>
-            💡 <strong>Next Steps:</strong> Browse available classes and register for one to activate your profile.
+        <div style={{
+          backgroundColor: 'white',
+          padding: '1.5rem',
+          borderRadius: '8px',
+          boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+          textAlign: 'center'
+        }}>
+          <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#28a745' }}>
+            {profileStats?.presentAttendance || 0}
+          </div>
+          <div style={{ color: '#666' }}>Classes Attended</div>
+        </div>
+        
+        <div style={{
+          backgroundColor: 'white',
+          padding: '1.5rem',
+          borderRadius: '8px',
+          boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+          textAlign: 'center'
+        }}>
+          <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#ffc107' }}>
+            {profileStats?.consistencyRate || 0}%
+          </div>
+          <div style={{ color: '#666' }}>Consistency</div>
+        </div>
+        
+        <div style={{
+          backgroundColor: 'white',
+          padding: '1.5rem',
+          borderRadius: '8px',
+          boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+          textAlign: 'center'
+        }}>
+          <div style={{ 
+            fontSize: '2rem', 
+            fontWeight: 'bold', 
+            color: getRankColor(profileStats?.globalRank, profileStats?.totalUsers)
+          }}>
+            #{profileStats?.globalRank || 'N/A'}
+          </div>
+          <div style={{ color: '#666' }}>Global Rank</div>
+        </div>
+      </div>
+
+      {/* Badges Section */}
+      <div style={{
+        backgroundColor: 'white',
+        padding: '2rem',
+        borderRadius: '8px',
+        boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+        marginBottom: '2rem'
+      }}>
+        <h3 style={{ marginBottom: '1.5rem' }}>Achievements & Badges</h3>
+        {profileStats?.badges?.length > 0 ? (
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
+            {profileStats.badges.map((badge, index) => (
+              <div key={index} style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                backgroundColor: badge.color,
+                color: 'white',
+                padding: '0.75rem 1.5rem',
+                borderRadius: '25px',
+                fontWeight: 'bold',
+                fontSize: '0.9rem'
+              }}>
+                <span style={{ fontSize: '1.2rem' }}>{badge.icon}</span>
+                {badge.name}
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div style={{ textAlign: 'center', color: '#666', padding: '2rem' }}>
+            Complete courses to earn badges!
           </div>
         )}
-        
-        {user?.status === 'pending' && (
-          <div style={{ marginTop: '1rem', fontSize: '0.9rem' }}>
-            ⏰ <strong>Please Wait:</strong> Admin will review your registration within 3 days. You'll receive a notification once approved.
+      </div>
+
+      {/* Skills Section */}
+      <div style={{
+        backgroundColor: 'white',
+        padding: '2rem',
+        borderRadius: '8px',
+        boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+        marginBottom: '2rem'
+      }}>
+        <h3 style={{ marginBottom: '1.5rem' }}>Dance Skills</h3>
+        {profileStats?.skills && Object.keys(profileStats.skills).length > 0 ? (
+          <div style={{ display: 'grid', gap: '1rem' }}>
+            {Object.entries(profileStats.skills).map(([danceType, skill]) => (
+              <div key={danceType} style={{
+                border: '1px solid #ddd',
+                borderRadius: '8px',
+                padding: '1.5rem',
+                backgroundColor: '#f9f9f9'
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div>
+                    <h4 style={{ margin: '0 0 0.5rem 0' }}>{danceType}</h4>
+                    <div style={{ color: '#666' }}>
+                      {skill.courses} courses completed • {skill.level}
+                    </div>
+                  </div>
+                  <div>{renderStars(skill.stars)}</div>
+                </div>
+              </div>
+            ))}
           </div>
-        )}
-        
-        {user?.status === 'active' && (
-          <div style={{ marginTop: '1rem', fontSize: '0.9rem' }}>
-            🎉 <strong>Welcome!</strong> You can now attend classes and track your progress in the Calendar section.
+        ) : (
+          <div style={{ textAlign: 'center', color: '#666', padding: '2rem' }}>
+            Complete courses to develop your dance skills!
           </div>
         )}
       </div>
@@ -128,67 +262,18 @@ const Profile = () => {
               </button>
             </div>
             
-            <div style={{ display: 'grid', gap: '1.5rem' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '150px 1fr', gap: '1rem', alignItems: 'center' }}>
-                <label style={{ fontWeight: 'bold', color: '#666' }}>Name:</label>
-                <p style={{ margin: 0, padding: '0.5rem', backgroundColor: '#f8f9fa', borderRadius: '4px' }}>
-                  {user?.name}
-                </p>
-              </div>
-              
-              <div style={{ display: 'grid', gridTemplateColumns: '150px 1fr', gap: '1rem', alignItems: 'center' }}>
-                <label style={{ fontWeight: 'bold', color: '#666' }}>Email:</label>
-                <p style={{ margin: 0, padding: '0.5rem', backgroundColor: '#f8f9fa', borderRadius: '4px' }}>
-                  {user?.email}
-                </p>
-              </div>
-              
-              <div style={{ display: 'grid', gridTemplateColumns: '150px 1fr', gap: '1rem', alignItems: 'center' }}>
-                <label style={{ fontWeight: 'bold', color: '#666' }}>Role:</label>
-                <div>
-                  <span style={{
-                    padding: '0.25rem 0.75rem',
-                    backgroundColor: '#17a2b8',
-                    color: 'white',
-                    borderRadius: '4px',
-                    fontSize: '0.9rem'
-                  }}>
-                    {user?.role?.toUpperCase()}
-                  </span>
-                </div>
-              </div>
-              
-              <div style={{ display: 'grid', gridTemplateColumns: '150px 1fr', gap: '1rem', alignItems: 'center' }}>
-                <label style={{ fontWeight: 'bold', color: '#666' }}>Phone:</label>
-                <p style={{ margin: 0, padding: '0.5rem', backgroundColor: '#f8f9fa', borderRadius: '4px' }}>
-                  {user?.phone || 'Not provided'}
-                </p>
-              </div>
-              
-              <div style={{ display: 'grid', gridTemplateColumns: '150px 1fr', gap: '1rem', alignItems: 'start' }}>
-                <label style={{ fontWeight: 'bold', color: '#666' }}>Address:</label>
-                <p style={{ margin: 0, padding: '0.5rem', backgroundColor: '#f8f9fa', borderRadius: '4px', minHeight: '60px' }}>
-                  {user?.address || 'Not provided'}
-                </p>
-              </div>
-
-              {user?.membershipExpiry && (
-                <div style={{ display: 'grid', gridTemplateColumns: '150px 1fr', gap: '1rem', alignItems: 'center' }}>
-                  <label style={{ fontWeight: 'bold', color: '#666' }}>Membership Expires:</label>
-                  <p style={{ margin: 0, padding: '0.5rem', backgroundColor: '#f8f9fa', borderRadius: '4px' }}>
-                    {new Date(user.membershipExpiry).toLocaleDateString()}
-                  </p>
-                </div>
-              )}
+            <div style={{ display: 'grid', gap: '1rem' }}>
+              <div><strong>Name:</strong> {user?.name}</div>
+              <div><strong>Email:</strong> {user?.email}</div>
+              <div><strong>Phone:</strong> {user?.phone || 'Not provided'}</div>
+              <div><strong>Address:</strong> {user?.address || 'Not provided'}</div>
             </div>
           </div>
         ) : (
           <form onSubmit={handleSubmit}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-              <h3>Edit Profile</h3>
-            </div>
+            <h3 style={{ marginBottom: '2rem' }}>Edit Profile</h3>
             
-            <div style={{ display: 'grid', gap: '1.5rem' }}>
+            <div style={{ display: 'grid', gap: '1rem' }}>
               <div>
                 <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>Name:</label>
                 <input

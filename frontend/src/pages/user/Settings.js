@@ -1,4 +1,7 @@
 import React, { useState } from 'react';
+import axios from 'axios';
+import { useAuth } from '../../context/AuthContext';
+import Alert from '../../components/Alert';
 
 const Settings = () => {
   const [settings, setSettings] = useState({
@@ -18,39 +21,98 @@ const Settings = () => {
     confirmPassword: ''
   });
 
-  const handleSettingsSubmit = (e) => {
+  const [alert, setAlert] = useState(null);
+
+  const handleSettingsSubmit = async (e) => {
     e.preventDefault();
-    // In a real app, you'd save these settings to the backend
-    console.log('Settings saved:', settings);
-    alert('Settings saved successfully!');
+    try {
+      await axios.put('/api/auth/settings', settings);
+      setAlert({ message: 'Settings saved successfully!', type: 'success' });
+    } catch (error) {
+      setAlert({ message: 'Failed to save settings', type: 'error' });
+    }
   };
 
-  const handlePasswordSubmit = (e) => {
+  const { logout } = useAuth();
+
+  const handlePasswordSubmit = async (e) => {
     e.preventDefault();
     
     if (passwordData.newPassword !== passwordData.confirmPassword) {
-      alert('New passwords do not match!');
+      setAlert({ message: 'New passwords do not match!', type: 'error' });
       return;
     }
 
     if (passwordData.newPassword.length < 6) {
-      alert('Password must be at least 6 characters long!');
+      setAlert({ message: 'Password must be at least 6 characters long!', type: 'error' });
       return;
     }
 
-    // In a real app, you'd make an API call to change the password
-    console.log('Password change requested');
-    alert('Password changed successfully!');
-    setPasswordData({
-      currentPassword: '',
-      newPassword: '',
-      confirmPassword: ''
-    });
+    try {
+      await axios.put('/api/auth/change-password', {
+        currentPassword: passwordData.currentPassword,
+        newPassword: passwordData.newPassword
+      });
+      setAlert({ message: 'Password changed successfully!', type: 'success' });
+      setPasswordData({
+        currentPassword: '',
+        newPassword: '',
+        confirmPassword: ''
+      });
+    } catch (error) {
+      setAlert({ message: error.response?.data?.message || 'Failed to change password', type: 'error' });
+    }
+  };
+
+  const handleExportData = async () => {
+    if (window.confirm('Are you sure you want to export your data?')) {
+      try {
+        const response = await axios.get('/api/auth/export-data');
+        const dataStr = JSON.stringify(response.data, null, 2);
+        const dataBlob = new Blob([dataStr], { type: 'application/json' });
+        const url = URL.createObjectURL(dataBlob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `account-data-${new Date().toISOString().split('T')[0]}.json`;
+        link.click();
+        URL.revokeObjectURL(url);
+        setAlert({ message: 'Data exported successfully!', type: 'success' });
+      } catch (error) {
+        setAlert({ message: 'Failed to export data', type: 'error' });
+      }
+    }
+  };
+
+  const handleDeactivateAccount = async () => {
+    if (window.confirm('Are you sure you want to deactivate your account? This action can be reversed by contacting support.')) {
+      try {
+        await axios.put('/api/auth/deactivate');
+        setAlert({ message: 'Account deactivated successfully. You will be logged out.', type: 'success' });
+        setTimeout(() => logout(), 2000);
+      } catch (error) {
+        setAlert({ message: 'Failed to deactivate account', type: 'error' });
+      }
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    if (window.confirm('Are you sure you want to delete your account? This action cannot be undone!')) {
+      if (window.confirm('This will permanently delete all your data. Are you absolutely sure?')) {
+        try {
+          await axios.delete('/api/auth/delete-account');
+          setAlert({ message: 'Account deleted successfully.', type: 'success' });
+          setTimeout(() => logout(), 2000);
+        } catch (error) {
+          setAlert({ message: 'Failed to delete account', type: 'error' });
+        }
+      }
+    }
   };
 
   return (
     <div>
       <h2>Settings</h2>
+      {alert && <Alert message={alert.message} type={alert.type} onClose={() => setAlert(null)} />}
       
       {/* Notification Settings */}
       <div style={{
@@ -335,11 +397,7 @@ const Settings = () => {
         
         <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
           <button
-            onClick={() => {
-              if (window.confirm('Are you sure you want to export your data?')) {
-                alert('Data export will be sent to your email within 24 hours.');
-              }
-            }}
+            onClick={handleExportData}
             style={{
               backgroundColor: '#17a2b8',
               color: 'white',
@@ -353,11 +411,7 @@ const Settings = () => {
           </button>
 
           <button
-            onClick={() => {
-              if (window.confirm('Are you sure you want to deactivate your account? This action can be reversed by contacting support.')) {
-                alert('Account deactivation request submitted. Please contact support to complete the process.');
-              }
-            }}
+            onClick={handleDeactivateAccount}
             style={{
               backgroundColor: '#ffc107',
               color: 'black',
@@ -371,13 +425,7 @@ const Settings = () => {
           </button>
 
           <button
-            onClick={() => {
-              if (window.confirm('Are you sure you want to delete your account? This action cannot be undone!')) {
-                if (window.confirm('This will permanently delete all your data. Are you absolutely sure?')) {
-                  alert('Account deletion request submitted. Please contact support to complete the process.');
-                }
-              }
-            }}
+            onClick={handleDeleteAccount}
             style={{
               backgroundColor: '#dc3545',
               color: 'white',

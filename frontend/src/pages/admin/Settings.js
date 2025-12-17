@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useAuth } from '../../context/AuthContext';
+import Alert from '../../components/Alert';
 
 const Settings = () => {
   const [settings, setSettings] = useState({
@@ -15,11 +16,12 @@ const Settings = () => {
   });
 
   const { logout } = useAuth();
+  const [alert, setAlert] = useState(null);
 
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log('Settings saved:', settings);
-    alert('Settings saved successfully!');
+    setAlert({ message: 'Settings saved successfully!', type: 'success' });
   };
 
   const handleExportData = async () => {
@@ -34,9 +36,9 @@ const Settings = () => {
         link.download = `account-data-${new Date().toISOString().split('T')[0]}.json`;
         link.click();
         URL.revokeObjectURL(url);
-        alert('Data exported successfully!');
+        setAlert({ message: 'Data exported successfully!', type: 'success' });
       } catch (error) {
-        alert('Failed to export data');
+        setAlert({ message: 'Failed to export data', type: 'error' });
       }
     }
   };
@@ -45,10 +47,10 @@ const Settings = () => {
     if (window.confirm('Are you sure you want to deactivate your account? This action can be reversed by contacting support.')) {
       try {
         await axios.put('/api/auth/deactivate');
-        alert('Account deactivated successfully. You will be logged out.');
-        logout();
+        setAlert({ message: 'Account deactivated successfully. You will be logged out.', type: 'success' });
+        setTimeout(() => logout(), 2000);
       } catch (error) {
-        alert('Failed to deactivate account');
+        setAlert({ message: 'Failed to deactivate account', type: 'error' });
       }
     }
   };
@@ -58,10 +60,10 @@ const Settings = () => {
       if (window.confirm('This will permanently delete all your data. Are you absolutely sure?')) {
         try {
           await axios.delete('/api/auth/delete-account');
-          alert('Account deleted successfully.');
-          logout();
+          setAlert({ message: 'Account deleted successfully.', type: 'success' });
+          setTimeout(() => logout(), 2000);
         } catch (error) {
-          alert('Failed to delete account');
+          setAlert({ message: 'Failed to delete account', type: 'error' });
         }
       }
     }
@@ -70,6 +72,7 @@ const Settings = () => {
   return (
     <div>
       <h2>System Settings</h2>
+      {alert && <Alert message={alert.message} type={alert.type} onClose={() => setAlert(null)} />}
       
       <form onSubmit={handleSubmit} style={{
         backgroundColor: 'white',

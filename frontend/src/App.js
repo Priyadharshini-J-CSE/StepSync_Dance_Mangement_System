@@ -1,9 +1,11 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
-import Dashboard from './pages/Dashboard';
-import Login from './pages/Login';
-import Register from './pages/Register';
+import LandingPage from './pages/LandingPage';
+import UserLogin from './pages/UserLogin';
+import AdminLogin from './pages/AdminLogin';
+import UserRegister from './pages/UserRegister';
+import AdminRegister from './pages/AdminRegister';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import UserDashboard from './pages/user/UserDashboard';
 
@@ -11,7 +13,7 @@ const ProtectedRoute = ({ children, requiredRole }) => {
   const { user, loading } = useAuth();
   
   if (loading) return <div>Loading...</div>;
-  if (!user) return <Navigate to="/login" />;
+  if (!user) return <Navigate to="/" />;
   if (requiredRole && user.role !== requiredRole) return <Navigate to="/" />;
   
   return children;
@@ -23,9 +25,11 @@ function App() {
       <Router>
         <div style={{ minHeight: '100vh', backgroundColor: '#f5f5f5' }}>
           <Routes>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/user-login" element={<UserLogin />} />
+            <Route path="/admin-login" element={<AdminLogin />} />
+            <Route path="/user-register" element={<UserRegister />} />
+            <Route path="/admin-register" element={<AdminRegister />} />
             <Route 
               path="/admin/*" 
               element={

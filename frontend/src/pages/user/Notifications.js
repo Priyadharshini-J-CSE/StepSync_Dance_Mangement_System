@@ -34,17 +34,17 @@ const Notifications = () => {
   const getNotificationIcon = (type) => {
     switch (type) {
       case 'class_accepted':
-        return '✅';
+        return '';
       case 'class_rejected':
-        return '❌';
+        return '';
       case 'class_created':
-        return '🆕';
+        return '';
       case 'class_updated':
-        return '📝';
+        return '';
       case 'class_deleted':
-        return '🗑️';
+        return '';
       default:
-        return '📢';
+        return '';
     }
   };
 
@@ -69,7 +69,7 @@ const Notifications = () => {
     switch (notification.type) {
       case 'class_accepted':
         return {
-          title: 'Class Registration Approved! 🎉',
+          title: 'Class Registration Approved',
           description: 'Your registration has been approved. Your profile is now active and you can start attending classes.',
           action: 'You can now view your class schedule in the Calendar section.'
         };
@@ -81,7 +81,7 @@ const Notifications = () => {
         };
       case 'class_created':
         return {
-          title: 'New Class Available!',
+          title: 'New Class Available',
           description: `A new class "${notification.relatedClass?.name}" has been created.`,
           action: 'Check out the new class in the Class Register section.'
         };
@@ -193,7 +193,7 @@ const Notifications = () => {
                           fontSize: '0.9rem',
                           fontStyle: 'italic'
                         }}>
-                          💡 {notificationInfo.action}
+                          {notificationInfo.action}
                         </p>
                       )}
                     </div>
@@ -234,7 +234,6 @@ const Notifications = () => {
                     border: '1px solid #c3e6cb'
                   }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                      <span style={{ fontSize: '1.2rem' }}>🎊</span>
                       <strong style={{ color: '#155724' }}>Congratulations!</strong>
                     </div>
                     <p style={{ margin: 0, color: '#155724', fontSize: '0.9rem' }}>
@@ -252,7 +251,6 @@ const Notifications = () => {
                     border: '1px solid #f5c6cb'
                   }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                      <span style={{ fontSize: '1.2rem' }}>💰</span>
                       <strong style={{ color: '#721c24' }}>Refund Processed</strong>
                     </div>
                     <p style={{ margin: 0, color: '#721c24', fontSize: '0.9rem' }}>

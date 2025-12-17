@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useAuth } from '../../context/AuthContext';
+import Alert from '../../components/Alert';
 
 const Profile = () => {
   const { user } = useAuth();
@@ -11,6 +12,7 @@ const Profile = () => {
     phone: user?.phone || '',
     address: user?.address || ''
   });
+  const [alert, setAlert] = useState(null);
 
   // Update form data when user data changes
   React.useEffect(() => {
@@ -29,17 +31,18 @@ const Profile = () => {
     try {
       await axios.put('/api/auth/profile', formData);
       setIsEditing(false);
-      alert('Profile updated successfully!');
-      window.location.reload();
+      setAlert({ message: 'Profile updated successfully!', type: 'success' });
+      setTimeout(() => window.location.reload(), 2000);
     } catch (error) {
       console.error('Error updating profile:', error);
-      alert('Failed to update profile');
+      setAlert({ message: 'Failed to update profile', type: 'error' });
     }
   };
 
   return (
     <div>
       <h2>Admin Profile</h2>
+      {alert && <Alert message={alert.message} type={alert.type} onClose={() => setAlert(null)} />}
       
       <div style={{
         backgroundColor: 'white',

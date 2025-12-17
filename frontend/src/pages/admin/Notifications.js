@@ -47,19 +47,19 @@ const Notifications = () => {
   const getNotificationIcon = (type) => {
     switch (type) {
       case 'class_request':
-        return '📝';
+        return '';
       case 'class_accepted':
-        return '✅';
+        return '';
       case 'class_rejected':
-        return '❌';
+        return '';
       case 'class_created':
-        return '🆕';
+        return '';
       case 'class_updated':
-        return '📝';
+        return '';
       case 'class_deleted':
-        return '🗑️';
+        return '';
       default:
-        return '📢';
+        return '';
     }
   };
 
@@ -192,7 +192,7 @@ const Notifications = () => {
                   fontSize: '0.9rem',
                   color: '#1976d2'
                 }}>
-                  💡 Click to review this request in the Acceptance page
+                  Click to review this request in the Acceptance page
                 </div>
               )}
             </div>

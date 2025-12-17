@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 const { body, validationResult } = require('express-validator');
 const User = require('../models/User');
 const { auth } = require('../middleware/auth');
+const DatabaseManager = require('../config/database');
 
 const router = express.Router();
 
@@ -21,9 +22,20 @@ router.post('/register', [
 
     const { name, email, password, role, phone, address } = req.body;
     
-    const existingUser = await User.findOne({ email });
+    const existingUser = await User.findOne({ 
+      $or: [
+        { email },
+        { phone: phone && phone.trim() !== '' ? phone : null }
+      ].filter(Boolean)
+    });
+    
     if (existingUser) {
-      return res.status(400).json({ message: 'User already exists' });
+      if (existingUser.email === email) {
+        return res.status(400).json({ message: 'Email already exists' });
+      }
+      if (existingUser.phone === phone) {
+        return res.status(400).json({ message: 'Phone number already exists' });
+      }
     }
 
     const user = new User({ 
@@ -36,6 +48,11 @@ router.post('/register', [
       status: role === 'admin' ? 'active' : 'inactive'
     });
     await user.save();
+
+    // If admin, create their database
+    if (role === 'admin') {
+      await DatabaseManager.getConnection(user._id.toString());
+    }
 
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
     
@@ -180,6 +197,58 @@ router.delete('/delete-account', auth, async (req, res) => {
     await User.findByIdAndDelete(req.user._id);
     
     res.json({ message: 'Account deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Change password
+router.put('/change-password', auth, async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    const user = await User.findById(req.user._id);
+    
+    if (!(await user.comparePassword(currentPassword))) {
+      return res.status(400).json({ message: 'Current password is incorrect' });
+    }
+    
+    user.password = newPassword;
+    await user.save();
+    
+    res.json({ message: 'Password changed successfully' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Update settings
+router.put('/settings', auth, async (req, res) => {
+  try {
+    const settings = req.body;
+    // In a real app, you'd save settings to a UserSettings model
+    // For now, just return success
+    res.json({ message: 'Settings saved successfully', settings });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Get available admins
+router.get('/admins', async (req, res) => {
+  try {
+    const admins = await User.find({ role: 'admin' }).select('_id name email');
+    res.json(admins);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Assign user to admin
+router.put('/assign-admin', auth, async (req, res) => {
+  try {
+    const { adminId } = req.body;
+    await User.findByIdAndUpdate(req.user._id, { adminId });
+    res.json({ message: 'Admin assigned successfully' });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

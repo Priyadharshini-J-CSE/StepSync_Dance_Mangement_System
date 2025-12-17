@@ -15,6 +15,8 @@ const classSchema = new mongoose.Schema({
     type: { type: String, enum: ['3month', '1year'] },
     price: Number
   }],
+  mode: { type: String, enum: ['online', 'offline'], default: 'offline' },
+  meetingLink: String,
   isActive: { type: Boolean, default: true },
   createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   createdAt: { type: Date, default: Date.now }

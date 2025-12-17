@@ -7,6 +7,7 @@ import Acceptance from './Acceptance';
 import Notifications from './Notifications';
 import Profile from './Profile';
 import Settings from './Settings';
+import VideoCall from '../VideoCall';
 
 const AdminDashboard = () => {
   const navLinks = [
@@ -29,6 +30,7 @@ const AdminDashboard = () => {
           <Route path="/notifications" element={<Notifications />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/settings" element={<Settings />} />
+          <Route path="/video-call/:classId" element={<VideoCall />} />
         </Routes>
       </div>
     </div>

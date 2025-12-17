@@ -20,6 +20,8 @@ const Register = () => {
   const { register } = useAuth();
   const navigate = useNavigate();
 
+
+
   const handlePasswordChange = (password) => {
     setFormData({...formData, password});
     setPasswordValidation(validatePassword(password));
@@ -43,6 +45,8 @@ const Register = () => {
       setError('Please accept terms and conditions');
       return;
     }
+
+
 
     setLoading(true);
 
@@ -136,6 +140,8 @@ const Register = () => {
             <option value="admin">Admin</option>
           </select>
         </div>
+
+
 
         <div style={{ marginBottom: '1rem' }}>
           <label style={{ display: 'block', marginBottom: '0.5rem' }}>Password:</label>
