@@ -60,7 +60,7 @@ router.post('/accept-request/:requestId', adminAuth, async (req, res) => {
 
     // Create notification for user with meeting link if online class
     const acceptMessage = classData.mode === 'online' 
-      ? `Your request to join "${request.class.name}" has been accepted. Meeting link: ${classData.meetingLink}`
+      ? `Your request to join "${request.class.name}" has been accepted. Join video call: ${process.env.FRONTEND_URL || 'http://localhost:3000'}/user/video-call/${classData._id}`
       : `Your request to join "${request.class.name}" has been accepted`;
     
     await new Notification({

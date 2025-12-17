@@ -34,7 +34,7 @@ router.post('/', adminAuth, async (req, res) => {
       await newClass.save();
     }
 
-    // Only enrolled users get notifications (none initially)
+    // No notifications sent when creating classes
 
     res.status(201).json(newClass);
   } catch (error) {

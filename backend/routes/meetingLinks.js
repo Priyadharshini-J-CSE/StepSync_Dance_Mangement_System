@@ -9,10 +9,17 @@ const router = express.Router();
 // Send meeting link notification to enrolled users
 router.post('/send-meeting-link/:classId', auth, async (req, res) => {
   try {
-    const classData = await Class.findById(req.params.classId).populate('enrolled', 'name email');
+    const classData = await Class.findOne({ 
+      _id: req.params.classId,
+      createdBy: req.user._id 
+    }).populate('enrolled', 'name email');
     
-    if (!classData || classData.mode !== 'online') {
-      return res.status(400).json({ message: 'Invalid online class' });
+    if (!classData) {
+      return res.status(404).json({ message: 'Class not found or unauthorized' });
+    }
+
+    if (classData.mode !== 'online') {
+      return res.status(400).json({ message: 'This is not an online class' });
     }
 
     if (classData.enrolled.length === 0) {
@@ -24,7 +31,7 @@ router.post('/send-meeting-link/:classId', auth, async (req, res) => {
       recipient: user._id,
       sender: req.user._id,
       type: 'meeting_link',
-      message: `Meeting link for "${classData.name}": ${process.env.FRONTEND_URL || 'http://localhost:3000'}${classData.meetingLink}`,
+      message: `Join "${classData.name}" video call: ${process.env.FRONTEND_URL || 'http://localhost:3000'}/user/video-call/${classData._id}`,
       relatedClass: classData._id
     }));
 

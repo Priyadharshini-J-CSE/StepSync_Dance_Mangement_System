@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dance Studio CSS</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      background: linear-gradient(-45deg, #fff6e9, #ffeed3, #ffd9a8, #ffe5c2);
+      background-size: 400% 400%;
+      animation: gradientDance 15s ease infinite;
+      overflow-x: hidden;
+      color: #2c2c2c;
+      position: relative;
+      min-height: 100vh;
+    }
+
+    /* Dancing Background Layer */
+    #dancing-background {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .dance-girl {
+      position: absolute;
+      font-size: 45px;
+      opacity: 0.25;
+      filter: drop-shadow(2px 2px 6px rgba(170, 141, 111, 0.4));
+      pointer-events: none;
+    }
+
+    /* Content layer */
+    body > *:not(#dancing-background) {
+      position: relative;
+      z-index: 1;
+    }
+
+    @keyframes gradientDance {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    @keyframes dancer1 {
+      0%, 100% { transform: translate(0, 0) rotate(0deg) scale(1); }
+      25% { transform: translate(40px, -25px) rotate(15deg) scale(1.15); }
+      50% { transform: translate(80px, 15px) rotate(-12deg) scale(0.95); }
+      75% { transform: translate(40px, 30px) rotate(8deg) scale(1.08); }
+    }
+
+    @keyframes dancer2 {
+      0%, 100% { transform: translate(0, 0) rotate(0deg) scale(1); }
+      20% { transform: translate(-35px, 25px) rotate(-18deg) scale(1.12); }
+      40% { transform: translate(-70px, -15px) rotate(22deg) scale(0.88); }
+      60% { transform: translate(-35px, 35px) rotate(-14deg) scale(1.06); }
+      80% { transform: translate(-18px, -8px) rotate(9deg) scale(0.97); }
+    }
+
+    @keyframes dancer3 {
+      0%, 100% { transform: translate(0, 0) rotate(0deg) scale(1); }
+      30% { transform: translate(55px, -45px) rotate(28deg) scale(1.25); }
+      60% { transform: translate(-28px, -20px) rotate(-23deg) scale(0.82); }
+      90% { transform: translate(28px, 8px) rotate(14deg) scale(1.04); }
+    }
+
+    @keyframes dancer4 {
+      0%, 100% { transform: translate(0, 0) rotate(0deg) scale(1); }
+      15% { transform: translate(-28px, -35px) rotate(-16deg) scale(1.18); }
+      35% { transform: translate(38px, 18px) rotate(20deg) scale(0.92); }
+      55% { transform: translate(-45px, -9px) rotate(-11deg) scale(1.13); }
+      75% { transform: translate(18px, 28px) rotate(7deg) scale(0.96); }
+    }
+
+    @keyframes dancer5 {
+      0%, 100% { transform: translate(0, 0) rotate(0deg) scale(1); }
+      25% { transform: translate(65px, 38px) rotate(26deg) scale(1.22); }
+      50% { transform: translate(-38px, -28px) rotate(-19deg) scale(0.86); }
+      75% { transform: translate(38px, -18px) rotate(15deg) scale(1.09); }
+    }
+
+    @keyframes dancer6 {
+      0%, 100% { transform: translate(0, 0) rotate(0deg) scale(1); }
+      20% { transform: translate(-55px, 32px) rotate(-23deg) scale(1.16); }
+      40% { transform: translate(28px, -38px) rotate(19deg) scale(0.89); }
+      60% { transform: translate(-32px, 18px) rotate(-17deg) scale(1.11); }
+      80% { transform: translate(42px, -14px) rotate(11deg) scale(0.93); }
+    }
+
+    code {
+      font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(-30px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes danceFloat {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      25% { transform: translateY(-10px) rotate(1deg); }
+      50% { transform: translateY(-5px) rotate(-1deg); }
+      75% { transform: translateY(-15px) rotate(1deg); }
+    }
+
+    @keyframes rhythmicBounce {
+      0%, 100% { transform: translateY(0) scale(1); }
+      10% { transform: translateY(-5px) scale(1.02); }
+      20% { transform: translateY(0) scale(1); }
+      30% { transform: translateY(-3px) scale(1.01); }
+      40% { transform: translateY(0) scale(1); }
+    }
+
+    @keyframes twirl {
+      0% { transform: rotate(0deg) scale(1); }
+      50% { transform: rotate(180deg) scale(1.1); }
+      100% { transform: rotate(360deg) scale(1); }
+    }
+
+    @keyframes shimmer {
+      0% { background-position: -1000px 0; }
+      100% { background-position: 1000px 0; }
+    }
+
+    /* Button styles */
+    button {
+      background: linear-gradient(135deg, #aa8d6f 0%, #c9a882 100%);
+      color: #ffffff;
+      border: 2px solid #77674e;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(119, 103, 78, 0.2);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 500;
+      position: relative;
+      overflow: hidden;
+      animation: rhythmicBounce 4s ease-in-out infinite;
+    }
+
+    button::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+      transition: left 0.5s;
+    }
+
+    button:hover:not(:disabled)::before {
+      left: 100%;
+    }
+
+    button:hover:not(:disabled) {
+      transform: translateY(-4px) scale(1.05);
+      box-shadow: 0 8px 25px rgba(119, 103, 78, 0.4);
+      animation: danceFloat 0.6s ease-in-out infinite;
+    }
+
+    button:active:not(:disabled) {
+      transform: translateY(0) scale(0.98);
+      box-shadow: 0 2px 10px rgba(119, 103, 78, 0.2);
+    }
+
+    button:disabled {
+      background-color: #d0d0d0;
+      border-color: #b0b0b0;
+      color: #888;
+      cursor: not-allowed;
+      box-shadow: none;
+      opacity: 0.6;
+    }
+
+    button.secondary {
+      background-color: #ffeed3;
+      color: #aa8d6f;
+      border: 2px solid #aa8d6f;
+    }
+
+    button.secondary:hover:not(:disabled) {
+      background-color: #fff6e9;
+    }
+
+    /* Link styles */
+    a {
+      color: #aa8d6f;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    a::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background-color: #aa8d6f;
+      transition: width 0.3s ease;
+    }
+
+    a:hover::after {
+      width: 100%;
+    }
+
+    a:hover {
+      color: #77674e;
+    }
+
+    /* Input styles */
+    input, textarea, select {
+      border: 2px solid #e0e0e0;
+      padding: 0.75rem;
+      border-radius: 8px;
+      background-color: #ffffff;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      font-family: 'Montserrat', sans-serif;
+      box-shadow: 0 2px 8px rgba(170, 141, 111, 0.05);
+      color: #2c2c2c;
+    }
+
+    input:focus, textarea:focus, select:focus {
+      outline: none;
+      border-color: #aa8d6f;
+      box-shadow: 0 4px 20px rgba(170, 141, 111, 0.15), 0 0 0 3px rgba(170, 141, 111, 0.1);
+      transform: translateY(-2px);
+    }
+
+    input:hover, textarea:hover, select:hover {
+      border-color: #aa8d6f;
+      box-shadow: 0 4px 12px rgba(170, 141, 111, 0.1);
+    }
+
+    /* Card styles */
+    .card {
+      background-color: #ffffff !important;
+      padding: 1.5rem;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(170, 141, 111, 0.12), 0 1px 3px rgba(170, 141, 111, 0.08);
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+      animation: fadeIn 0.6s ease-out, danceFloat 6s ease-in-out infinite;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(45deg, transparent 30%, rgba(170, 141, 111, 0.03) 50%, transparent 70%);
+      animation: shimmer 3s linear infinite;
+    }
+
+    .card:hover {
+      transform: translateY(-8px) rotate(1deg);
+      box-shadow: 0 20px 50px rgba(170, 141, 111, 0.25), 0 5px 15px rgba(170, 141, 111, 0.15);
+      animation: twirl 0.8s ease-in-out;
+    }
+
+    /* Heading styles */
+    h1, h2, h3, h4, h5, h6 {
+      color: #aa8d6f;
+      animation: slideIn 0.6s ease-out;
+    }
+
+    /* Form container */
+    form {
+      animation: fadeIn 0.6s ease-out;
+    }
+
+    /* Navigation styles */
+    nav {
+      background-color: #ffffff !important;
+      box-shadow: 0 4px 12px rgba(170, 141, 111, 0.15) !important;
+      backdrop-filter: blur(10px);
+      transition: all 0.3s ease;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    .loading {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(170, 141, 111, 0.3);
+      border-radius: 50%;
+      border-top-color: #aa8d6f;
+      animation: spin 0.8s linear infinite;
+    }
+
+    .badge {
+      background-color: #aa8d6f;
+      color: #ffffff;
+      padding: 0.25rem 0.5rem;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      box-shadow: 0 2px 8px rgba(170, 141, 111, 0.3);
+      border: 1px solid #77674e;
+    }
+
+    table {
+      background-color: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(170, 141, 111, 0.12);
+      overflow: hidden;
+      animation: fadeIn 0.6s ease-out;
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th {
+      background-color: #aa8d6f;
+      color: #ffffff;
+      padding: 1rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.85rem;
+      letter-spacing: 0.5px;
+      border: 1px solid #77674e;
+    }
+
+    td {
+      padding: 0.75rem;
+      border-bottom: 1px solid #ffeed3;
+      transition: background-color 0.3s ease;
+    }
+
+    tr:hover td {
+      background-color: #fff6e9;
+    }
+
+    .alert {
+      background-color: #ffeed3;
+      border: 2px solid #aa8d6f;
+      color: #2c2c2c;
+      padding: 1rem;
+      border-radius: 8px;
+      box-shadow: 0 4px 15px rgba(170, 141, 111, 0.15);
+    }
+
+    .modal {
+      background-color: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 20px 60px rgba(170, 141, 111, 0.3);
+      border: 2px solid #aa8d6f;
+    }
+
+    .progress-bar {
+      background-color: #ffeed3;
+      border-radius: 10px;
+      overflow: hidden;
+      height: 20px;
+    }
+
+    .progress-bar-fill {
+      background-color: #aa8d6f;
+      height: 100%;
+      transition: width 0.3s ease;
+      border-right: 2px solid #77674e;
+    }
+
+    .sidebar, .panel {
+      background-color: #ffffff;
+      border-right: 2px solid #ffeed3;
+      box-shadow: 4px 0 12px rgba(170, 141, 111, 0.1);
+    }
+
+    footer {
+      background-color: #aa8d6f !important;
+      color: #ffffff !important;
+      border-top: 3px solid #77674e;
+    }
+
+    p, span, div {
+      color: #2c2c2c;
+    }
+
+    .interactive {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .interactive:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(170, 141, 111, 0.15);
+    }
+
+    .page-enter {
+      animation: fadeIn 0.5s ease-out;
+    }
+
+    ::-webkit-scrollbar {
+      width: 10px;
+      height: 10px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #fff6e9;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #aa8d6f;
+      border-radius: 5px;
+      border: 2px solid #77674e;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #77674e;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    .hero {
+      text-align: center;
+      padding: 4rem 2rem;
+      background: linear-gradient(135deg, #aa8d6f 0%, #c9a882 100%);
+      color: #ffffff;
+      box-shadow: 0 8px 24px rgba(170, 141, 111, 0.2);
+    }
+
+    .hero h1 {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      color: #ffffff;
+    }
+
+    .hero p {
+      font-size: 1.2rem;
+      margin-bottom: 2rem;
+      color: #ffffff;
+    }
+  </style>
+</head>
+<body>
+  <!-- Dancing Background Layer -->
+  <div id="dancing-background"></div>
+
+  <!-- Demo Content -->
+  <div class="hero">
+    <h1>💃 Dance Studio Management 🕺</h1>
+    <p>Watch the dancers in the background!</p>
+    <button>Get Started</button>
+  </div>
+
+  <div class="container">
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; margin-top: 2rem;">
+      <div class="card">
+        <h3>Classes</h3>
+        <p>Manage your dance classes and schedules</p>
+      </div>
+      <div class="card">
+        <h3>Students</h3>
+        <p>Track student progress and attendance</p>
+      </div>
+      <div class="card">
+        <h3>Instructors</h3>
+        <p>Coordinate with your teaching staff</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Create many dancing girls in the background
+    const dancingBg = document.getElementById('dancing-background');
+    const dancers = ['💃', '🕺'];
+    const animations = ['dancer1', 'dancer2', 'dancer3', 'dancer4', 'dancer5', 'dancer6'];
+    
+    // Create 30 dancing dolls
+    for (let i = 0; i < 30; i++) {
+      const dancer = document.createElement('div');
+      dancer.className = 'dance-girl';
+      dancer.textContent = dancers[Math.floor(Math.random() * dancers.length)];
+      
+      // Random position
+      dancer.style.left = Math.random() * 100 + '%';
+      dancer.style.top = Math.random() * 100 + '%';
+      
+      // Random animation
+      const anim = animations[Math.floor(Math.random() * animations.length)];
+      const duration = 8 + Math.random() * 6; // 8-14 seconds
+      const delay = Math.random() * 5; // 0-5 seconds delay
+      
+      dancer.style.animation = `${anim} ${duration}s ease-in-out infinite`;
+      dancer.style.animationDelay = `${delay}s`;
+      
+      // Random size
+      const size = 30 + Math.random() * 25; // 30-55px
+      dancer.style.fontSize = size + 'px';
+      
+      dancingBg.appendChild(dancer);
+    }
+  </script>
+</body>
+</html>

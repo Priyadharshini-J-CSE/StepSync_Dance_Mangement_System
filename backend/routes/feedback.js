@@ -33,4 +33,18 @@ router.get('/my-feedback', auth, async (req, res) => {
   }
 });
 
+// Get public feedback for landing page
+router.get('/public', async (req, res) => {
+  try {
+    const feedback = await Feedback.find()
+      .populate('user', 'name')
+      .populate('class', 'name')
+      .sort({ createdAt: -1 })
+      .limit(6);
+    res.json(feedback);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
 module.exports = router;
