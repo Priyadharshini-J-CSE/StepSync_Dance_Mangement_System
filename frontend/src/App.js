@@ -23,7 +23,7 @@ function App() {
   return (
     <AuthProvider>
       <Router>
-        <div style={{ minHeight: '100vh', backgroundColor: '#f5f5f5' }}>
+        <div style={{ minHeight: '100vh', backgroundColor: '#fff6e9' }}>
           <Routes>
             <Route path="/" element={<LandingPage />} />
             <Route path="/user-login" element={<UserLogin />} />

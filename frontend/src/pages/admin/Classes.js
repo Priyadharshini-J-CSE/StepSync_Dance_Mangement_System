@@ -286,10 +286,10 @@ const Classes = () => {
                     <button
                       onClick={async () => {
                         try {
-                          await axios.post(`/api/meeting-links/send-meeting-link/${classItem._id}`);
-                          alert('Meeting link sent to all enrolled students!');
+                          const response = await axios.post(`/api/meeting-links/send-meeting-link/${classItem._id}`);
+                          alert(response.data.message);
                         } catch (error) {
-                          alert('Failed to send meeting link');
+                          alert(error.response?.data?.message || 'Failed to send meeting link');
                         }
                       }}
                       style={{
