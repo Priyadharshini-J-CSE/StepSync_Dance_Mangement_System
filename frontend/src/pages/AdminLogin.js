@@ -34,7 +34,10 @@ const AdminLogin = () => {
       justifyContent: 'center', 
       alignItems: 'center', 
       minHeight: '100vh',
-      backgroundColor: '#f0f8ff'
+      backgroundImage: 'url(/image4.png)', 
+      backgroundSize: 'cover', 
+      backgroundPosition: 'center', 
+      backgroundAttachment: 'fixed'
     }}>
       <form onSubmit={handleSubmit} style={{
         backgroundColor: 'white',
@@ -43,7 +46,7 @@ const AdminLogin = () => {
         boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
         width: '400px'
       }}>
-        <h2 style={{ textAlign: 'center', marginBottom: '1.5rem', color: '#28a745' }}>
+        <h2 style={{ textAlign: 'center', marginBottom: '1.5rem', color: '#aa8d6f' }}>
           Admin Login
         </h2>
         
@@ -87,7 +90,7 @@ const AdminLogin = () => {
           style={{
             width: '100%',
             padding: '0.75rem',
-            backgroundColor: '#28a745',
+            backgroundColor: '#aa8d6f',
             color: 'white',
             border: 'none',
             borderRadius: '4px',
@@ -99,8 +102,9 @@ const AdminLogin = () => {
         </button>
 
         <div style={{ textAlign: 'center', marginTop: '1rem' }}>
-          <p>Don't have an account? <Link to="/admin-register">Register here</Link></p>
-          <p><Link to="/">Back to Home</Link></p>
+          <p><Link to="/forgot-password" style={{ color: '#6d5b48ff' }}>Forgot Password?</Link></p>
+          <p>Don't have an account? <Link to="/admin-register" style={{ color: '#aa8d6f' }}>Register here</Link></p>
+          <p><Link to="/" style={{ color: '#aa8d6f' }} >Back to Home</Link></p>
         </div>
       </form>
     </div>

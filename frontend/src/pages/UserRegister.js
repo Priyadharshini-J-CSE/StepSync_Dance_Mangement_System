@@ -17,6 +17,8 @@ const UserRegister = () => {
   const [alert, setAlert] = useState(null);
   const [loading, setLoading] = useState(false);
   const [passwordValidation, setPasswordValidation] = useState(null);
+  const [showTerms, setShowTerms] = useState(false);
+  const [hasScrolled, setHasScrolled] = useState(false);
   const { register } = useAuth();
   const navigate = useNavigate();
 
@@ -60,11 +62,14 @@ const UserRegister = () => {
       justifyContent: 'center', 
       alignItems: 'center', 
       minHeight: '100vh',
-      backgroundColor: '#f0f8ff',
-      padding: '1rem'
+      padding: '1rem',
+      backgroundImage: 'url(/image.jpg)', 
+      backgroundSize: 'cover', 
+      backgroundPosition: 'bottom 30% right 1350px', 
+      backgroundAttachment: 'fixed'
     }}>
       <form onSubmit={handleSubmit} style={{
-        backgroundColor: 'white',
+        backgroundColor: 'rgba(255, 255, 255, 0.68)',
         padding: '2rem',
         borderRadius: '8px',
         boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
@@ -72,7 +77,7 @@ const UserRegister = () => {
         maxHeight: '90vh',
         overflowY: 'auto'
       }}>
-        <h2 style={{ textAlign: 'center', marginBottom: '1.5rem', color: '#007bff' }}>
+        <h2 style={{ textAlign: 'center', marginBottom: '1.5rem', color: '#28a745', }}>
           Student Registration
         </h2>
         
@@ -183,16 +188,109 @@ const UserRegister = () => {
         </div>
 
         <div style={{ marginBottom: '1.5rem' }}>
+          <button
+            type="button"
+            onClick={() => setShowTerms(true)}
+            style={{
+              width: '100%',
+              padding: '0.75rem',
+              backgroundColor: '#f8f9fa',
+              color: '#007bff',
+              border: '1px solid #007bff',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              marginBottom: '0.5rem'
+            }}
+          >
+            View Terms & Conditions and Privacy Policy
+          </button>
           <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <input
               type="checkbox"
               checked={formData.acceptTerms}
               onChange={(e) => setFormData({...formData, acceptTerms: e.target.checked})}
               required
+              disabled={!hasScrolled}
             />
             I accept the Terms and Conditions and Privacy Policy
+            {!hasScrolled && <span style={{ color: 'red', fontSize: '0.8rem' }}>(Read first)</span>}
           </label>
         </div>
+
+        {showTerms && (
+          <div className="modal-overlay" onClick={() => setShowTerms(false)}>
+            <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '600px' }}>
+              <h3 style={{ marginTop: 0 }}>Terms & Conditions and Privacy Policy</h3>
+              <div
+                onScroll={(e) => {
+                  const { scrollTop, scrollHeight, clientHeight } = e.target;
+                  const isNearBottom = scrollHeight - scrollTop - clientHeight < 5;
+                  if (isNearBottom) setHasScrolled(true);
+                }}
+                style={{
+                  maxHeight: '400px',
+                  overflowY: 'auto',
+                  padding: '1rem',
+                  backgroundColor: '#f8f9fa',
+                  borderRadius: '8px',
+                  marginBottom: '1rem'
+                }}
+              >
+                <h4>Terms and Conditions</h4>
+                <p>Welcome to DanceHub. By registering, you agree to the following terms:</p>
+                <ol>
+                  <li>You must provide accurate and complete information during registration.</li>
+                  <li>You are responsible for maintaining the confidentiality of your account.</li>
+                  <li>You must be at least 18 years old to register.</li>
+                  <li>Payment for classes must be made in advance.</li>
+                  <li>Refunds are subject to our refund policy.</li>
+                  <li>You agree to attend classes on time and follow instructor guidelines.</li>
+                  <li>We reserve the right to cancel classes due to unforeseen circumstances.</li>
+                  <li>You agree not to share class materials without permission.</li>
+                </ol>
+
+                <h4>Privacy Policy</h4>
+                <p>We value your privacy and are committed to protecting your personal information:</p>
+                <ol>
+                  <li>We collect personal information including name, email, phone, and address.</li>
+                  <li>Your information is used solely for class management and communication.</li>
+                  <li>We do not sell or share your personal information with third parties.</li>
+                  <li>Payment information is processed securely through encrypted channels.</li>
+                  <li>You have the right to access, modify, or delete your personal data.</li>
+                  <li>We use cookies to improve your experience on our platform.</li>
+                  <li>Your attendance and payment records are stored securely.</li>
+                  <li>We may send you notifications about classes and updates.</li>
+                </ol>
+
+                <p style={{ fontWeight: 'bold', marginTop: '1rem' }}>
+                  Please scroll to the bottom to enable the acceptance checkbox.
+                </p>
+              </div>
+              <button
+                onClick={() => {
+                  if (hasScrolled) {
+                    setShowTerms(false);
+                  } else {
+                    alert('Please scroll to the bottom to read all terms');
+                  }
+                }}
+                disabled={!hasScrolled}
+                style={{
+                  width: '100%',
+                  padding: '0.75rem',
+                  backgroundColor: hasScrolled ? '#c77e3095' : '#6c757d',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: hasScrolled ? 'pointer' : 'not-allowed',
+                  opacity: hasScrolled ? 1 : 0.6
+                }}
+              >
+                {hasScrolled ? 'Accept' : 'Scroll to Accept'}
+              </button>
+            </div>
+          </div>
+        )}
 
         <button 
           type="submit" 
@@ -200,7 +298,7 @@ const UserRegister = () => {
           style={{
             width: '100%',
             padding: '0.75rem',
-            backgroundColor: '#007bff',
+            backgroundColor:'#28a745',
             color: 'white',
             border: 'none',
             borderRadius: '4px',
@@ -212,8 +310,8 @@ const UserRegister = () => {
         </button>
 
         <div style={{ textAlign: 'center', marginTop: '1rem' }}>
-          <p>Already have an account? <Link to="/user-login">Login here</Link></p>
-          <p><Link to="/">Back to Home</Link></p>
+          <p>Already have an account? <Link to="/user-login" style={{ color: '#aa8d6f' }}>Login here</Link></p>
+          <p><Link to="/" style={{ color: '#aa8d6f' }}>Back to Home</Link></p>
         </div>
       </form>
     </div>

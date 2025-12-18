@@ -23,7 +23,7 @@ const UserDashboard = () => {
   ];
 
   return (
-    <div>
+    <div style={{ backgroundImage: 'url(/background3.png)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed', minHeight: '100vh' }}>
       <Navbar links={navLinks} />
       <div style={{ padding: '2rem' }}>
         <Routes>

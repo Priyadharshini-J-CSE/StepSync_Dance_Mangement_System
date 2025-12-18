@@ -154,16 +154,32 @@ const Classes = () => {
 
             <div style={{ marginBottom: '1rem' }}>
               <label>Schedule Time:</label>
-              <input
-                type="text"
-                placeholder="e.g., 10:00 AM"
+              <select
                 value={formData.schedule.time}
                 onChange={(e) => setFormData({
                   ...formData, 
                   schedule: {...formData.schedule, time: e.target.value}
                 })}
+                required
                 style={{ width: '100%', padding: '0.5rem', marginTop: '0.25rem' }}
-              />
+              >
+                <option value="">Select Time</option>
+                <optgroup label="Morning">
+                  <option value="6:00 AM">6:00 AM</option>
+                  <option value="7:00 AM">7:00 AM</option>
+                  <option value="8:00 AM">8:00 AM</option>
+                  <option value="9:00 AM">9:00 AM</option>
+                  <option value="10:00 AM">10:00 AM</option>
+                  <option value="11:00 AM">11:00 AM</option>
+                </optgroup>
+                <optgroup label="Evening">
+                  <option value="5:00 PM">5:00 PM</option>
+                  <option value="6:00 PM">6:00 PM</option>
+                  <option value="7:00 PM">7:00 PM</option>
+                  <option value="8:00 PM">8:00 PM</option>
+                  <option value="9:00 PM">9:00 PM</option>
+                </optgroup>
+              </select>
             </div>
 
             <div style={{ marginBottom: '1rem' }}>
@@ -183,10 +199,22 @@ const Classes = () => {
               <label>Capacity:</label>
               <input
                 type="number"
+                min="1"
+                max="50"
                 value={formData.capacity}
-                onChange={(e) => setFormData({...formData, capacity: parseInt(e.target.value)})}
+                onChange={(e) => {
+                  const value = parseInt(e.target.value);
+                  if (value > 50) {
+                    alert('Maximum capacity is 50 students');
+                    setFormData({...formData, capacity: 50});
+                  } else {
+                    setFormData({...formData, capacity: value});
+                  }
+                }}
+                required
                 style={{ width: '100%', padding: '0.5rem', marginTop: '0.25rem' }}
               />
+              <small style={{ color: '#666', fontSize: '0.85rem' }}>Maximum: 50 students</small>
             </div>
 
             <div style={{ marginBottom: '1rem' }}>

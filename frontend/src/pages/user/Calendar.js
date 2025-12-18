@@ -52,11 +52,15 @@ const Calendar = () => {
     dayNames.forEach(day => {
       days.push(
         <div key={day} style={{
-          padding: '0.5rem',
-          fontWeight: 'bold',
+          padding: '1rem 0.5rem',
+          fontWeight: '700',
           textAlign: 'center',
-          backgroundColor: '#f8f9fa',
-          border: '1px solid #dee2e6'
+          background: 'linear-gradient(135deg, #aa8d6f 0%, #8b7355 100%)',
+          color: 'white',
+          border: '1px solid rgba(170,141,111,0.3)',
+          fontSize: '0.9rem',
+          letterSpacing: '0.5px',
+          textTransform: 'uppercase'
         }}>
           {day}
         </div>
@@ -68,8 +72,8 @@ const Calendar = () => {
       days.push(
         <div key={`empty-${i}`} style={{
           padding: '0.5rem',
-          border: '1px solid #dee2e6',
-          backgroundColor: '#f8f9fa'
+          border: '1px solid rgba(170,141,111,0.2)',
+          backgroundColor: 'rgba(248,246,243,0.3)'
         }}></div>
       );
     }
@@ -82,25 +86,60 @@ const Calendar = () => {
 
       days.push(
         <div key={day} style={{
-          padding: '0.5rem',
-          border: '1px solid #dee2e6',
-          minHeight: '80px',
-          backgroundColor: isToday ? '#e3f2fd' : 'white',
-          position: 'relative'
+          padding: '0.75rem',
+          border: '1px solid rgba(170,141,111,0.2)',
+          minHeight: '100px',
+          backgroundColor: isToday ? 'rgba(170,141,111,0.15)' : 'rgba(255,255,255,0.9)',
+          position: 'relative',
+          transition: 'all 0.3s ease',
+          cursor: 'default'
+        }}
+        onMouseEnter={(e) => {
+          if (!isToday) {
+            e.currentTarget.style.backgroundColor = 'rgba(170,141,111,0.08)';
+            e.currentTarget.style.transform = 'scale(1.02)';
+          }
+        }}
+        onMouseLeave={(e) => {
+          if (!isToday) {
+            e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.9)';
+            e.currentTarget.style.transform = 'scale(1)';
+          }
         }}>
-          <div style={{ fontWeight: isToday ? 'bold' : 'normal' }}>
+          <div style={{ 
+            fontWeight: isToday ? '700' : '600',
+            color: isToday ? '#aa8d6f' : '#675541',
+            fontSize: isToday ? '1.1rem' : '1rem',
+            marginBottom: '0.5rem',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.3rem'
+          }}>
+            {isToday && <i className="fas fa-calendar-day" style={{ fontSize: '0.9rem' }}></i>}
             {day}
           </div>
           {dayAttendance.map(record => (
             <div key={record._id} style={{
-              fontSize: '0.7rem',
-              padding: '0.1rem 0.3rem',
-              margin: '0.1rem 0',
-              borderRadius: '2px',
+              fontSize: '0.75rem',
+              padding: '0.4rem 0.5rem',
+              margin: '0.3rem 0',
+              borderRadius: '6px',
               backgroundColor: record.status === 'present' ? '#d4edda' : '#f8d7da',
-              color: record.status === 'present' ? '#155724' : '#721c24'
+              color: record.status === 'present' ? '#155724' : '#721c24',
+              fontWeight: '600',
+              boxShadow: record.status === 'present' 
+                ? '0 2px 6px rgba(40,167,69,0.2)' 
+                : '0 2px 6px rgba(220,53,69,0.2)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.3rem',
+              border: `1px solid ${record.status === 'present' ? '#c3e6cb' : '#f5c6cb'}`
             }}>
-              {record.class?.name} - {record.status}
+              <i className={record.status === 'present' ? 'fas fa-check-circle' : 'fas fa-times-circle'} 
+                 style={{ fontSize: '0.7rem' }}></i>
+              <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                {record.class?.name}
+              </span>
             </div>
           ))}
         </div>
@@ -119,115 +158,194 @@ const Calendar = () => {
   };
 
   if (loading) {
-    return <div>Loading calendar...</div>;
+    return (
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        minHeight: '60vh',
+        fontSize: '1.2rem',
+        color: '#675541'
+      }}>
+        <i className="fas fa-spinner fa-spin" style={{ marginRight: '0.5rem' }}></i>
+        Loading calendar...
+      </div>
+    );
   }
 
   const stats = getAttendanceStats();
 
   return (
-    <div>
-      <h2>Calendar & Attendance Tracker</h2>
+    <div style={{ padding: '1.5rem' }}>
+      <h2 style={{ 
+        color: '#675541', 
+        fontSize: '2.5rem', 
+        marginBottom: '2rem',
+        fontWeight: '700',
+        textAlign: 'center',
+        textShadow: '2px 2px 4px rgba(103,85,65,0.1)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: '0.75rem'
+      }}>
+        <i className="fas fa-calendar-alt"></i>
+        Calendar & Attendance Tracker
+      </h2>
       
       {/* Attendance Statistics */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-        gap: '1rem',
-        marginBottom: '2rem'
+        gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+        gap: '1.5rem',
+        marginBottom: '3rem'
       }}>
-        <div style={{
-          backgroundColor: 'white',
-          padding: '1.5rem',
-          borderRadius: '8px',
-          boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-          textAlign: 'center'
-        }}>
-          <h3 style={{ margin: '0 0 0.5rem 0', color: '#007bff' }}>Total Classes</h3>
-          <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#333' }}>
-            {stats.totalClasses}
+        {[
+          { title: 'Total Classes', value: stats.totalClasses, icon: 'fas fa-book', color: '#007bff' },
+          { title: 'Classes Attended', value: stats.presentClasses, icon: 'fas fa-check-circle', color: '#28a745' },
+          { title: 'Attendance Rate', value: `${stats.attendanceRate}%`, icon: 'fas fa-chart-pie', color: '#aa8d6f' }
+        ].map((stat, index) => (
+          <div key={index} style={{
+            background: 'linear-gradient(135deg, #ffffff 0%, #f8f6f3 100%)',
+            padding: '2rem',
+            borderRadius: '16px',
+            boxShadow: '0 8px 16px rgba(103,85,65,0.15)',
+            textAlign: 'center',
+            transition: 'all 0.3s ease',
+            border: '1px solid rgba(170,141,111,0.2)',
+            cursor: 'default'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = 'translateY(-5px)';
+            e.currentTarget.style.boxShadow = '0 12px 24px rgba(103,85,65,0.25)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = 'translateY(0)';
+            e.currentTarget.style.boxShadow = '0 8px 16px rgba(103,85,65,0.15)';
+          }}>
+            <i className={stat.icon} style={{ 
+              fontSize: '3rem', 
+              marginBottom: '0.75rem',
+              color: stat.color
+            }}></i>
+            <h3 style={{ 
+              margin: '0 0 0.75rem 0', 
+              color: '#675541',
+              fontSize: '1rem',
+              fontWeight: '600',
+              textTransform: 'uppercase',
+              letterSpacing: '0.5px'
+            }}>
+              {stat.title}
+            </h3>
+            <div style={{ 
+              fontSize: '2.5rem', 
+              fontWeight: 'bold', 
+              color: stat.color,
+              textShadow: `2px 2px 4px ${stat.color}20`
+            }}>
+              {stat.value}
+            </div>
           </div>
-        </div>
-        
-        <div style={{
-          backgroundColor: 'white',
-          padding: '1.5rem',
-          borderRadius: '8px',
-          boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-          textAlign: 'center'
-        }}>
-          <h3 style={{ margin: '0 0 0.5rem 0', color: '#28a745' }}>Classes Attended</h3>
-          <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#333' }}>
-            {stats.presentClasses}
-          </div>
-        </div>
-        
-        <div style={{
-          backgroundColor: 'white',
-          padding: '1.5rem',
-          borderRadius: '8px',
-          boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-          textAlign: 'center'
-        }}>
-          <h3 style={{ margin: '0 0 0.5rem 0', color: '#ffc107' }}>Attendance Rate</h3>
-          <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#333' }}>
-            {stats.attendanceRate}%
-          </div>
-        </div>
+        ))}
       </div>
 
       {/* Calendar */}
       <div style={{
-        backgroundColor: 'white',
-        borderRadius: '8px',
-        boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-        overflow: 'hidden'
+        background: 'linear-gradient(135deg, #ffffff 0%, #faf8f6 100%)',
+        borderRadius: '16px',
+        boxShadow: '0 8px 20px rgba(103,85,65,0.15)',
+        overflow: 'hidden',
+        border: '1px solid rgba(170,141,111,0.2)'
       }}>
         {/* Calendar Header */}
         <div style={{
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          padding: '1rem',
-          backgroundColor: '#f8f9fa',
-          borderBottom: '1px solid #dee2e6'
+          padding: '1.5rem 2rem',
+          background: 'linear-gradient(135deg, #f8f6f3 0%, #f0ede8 100%)',
+          borderBottom: '2px solid rgba(170,141,111,0.2)'
         }}>
           <button
             onClick={() => navigateMonth(-1)}
             style={{
-              backgroundColor: '#007bff',
+              background: 'linear-gradient(135deg, #aa8d6f 0%, #8b7355 100%)',
               color: 'white',
               border: 'none',
-              padding: '0.5rem 1rem',
-              borderRadius: '4px',
-              cursor: 'pointer'
+              padding: '0.75rem 1.5rem',
+              borderRadius: '10px',
+              cursor: 'pointer',
+              fontSize: '1rem',
+              fontWeight: '600',
+              transition: 'all 0.3s ease',
+              boxShadow: '0 4px 12px rgba(170,141,111,0.3)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem'
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.transform = 'translateX(-3px)';
+              e.target.style.boxShadow = '0 6px 16px rgba(170,141,111,0.4)';
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.transform = 'translateX(0)';
+              e.target.style.boxShadow = '0 4px 12px rgba(170,141,111,0.3)';
             }}
           >
-            ← Previous
+            <i className="fas fa-chevron-left"></i>
+            Previous
           </button>
           
-          <h3 style={{ margin: 0 }}>
+          <h3 style={{ 
+            margin: 0,
+            color: '#675541',
+            fontSize: '1.8rem',
+            fontWeight: '700',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem'
+          }}>
+            <i className="fas fa-calendar-week" style={{ color: '#aa8d6f' }}></i>
             {currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
           </h3>
           
           <button
             onClick={() => navigateMonth(1)}
             style={{
-              backgroundColor: '#007bff',
+              background: 'linear-gradient(135deg, #aa8d6f 0%, #8b7355 100%)',
               color: 'white',
               border: 'none',
-              padding: '0.5rem 1rem',
-              borderRadius: '4px',
-              cursor: 'pointer'
+              padding: '0.75rem 1.5rem',
+              borderRadius: '10px',
+              cursor: 'pointer',
+              fontSize: '1rem',
+              fontWeight: '600',
+              transition: 'all 0.3s ease',
+              boxShadow: '0 4px 12px rgba(170,141,111,0.3)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem'
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.transform = 'translateX(3px)';
+              e.target.style.boxShadow = '0 6px 16px rgba(170,141,111,0.4)';
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.transform = 'translateX(0)';
+              e.target.style.boxShadow = '0 4px 12px rgba(170,141,111,0.3)';
             }}
           >
-            Next →
+            Next
+            <i className="fas fa-chevron-right"></i>
           </button>
         </div>
 
         {/* Calendar Grid */}
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(7, 1fr)'
+          gridTemplateColumns: 'repeat(7, 1fr)',
+          backgroundColor: 'rgba(255,255,255,0.5)'
         }}>
           {renderCalendar()}
         </div>
@@ -235,40 +353,96 @@ const Calendar = () => {
 
       {/* Legend */}
       <div style={{
-        marginTop: '1rem',
-        padding: '1rem',
-        backgroundColor: 'white',
-        borderRadius: '8px',
-        boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+        marginTop: '2rem',
+        padding: '2rem',
+        background: 'linear-gradient(135deg, #ffffff 0%, #faf8f6 100%)',
+        borderRadius: '16px',
+        boxShadow: '0 8px 20px rgba(103,85,65,0.15)',
+        border: '1px solid rgba(170,141,111,0.2)'
       }}>
-        <h4 style={{ margin: '0 0 0.5rem 0' }}>Legend:</h4>
-        <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+        <h4 style={{ 
+          margin: '0 0 1.5rem 0',
+          color: '#675541',
+          fontSize: '1.3rem',
+          fontWeight: '700',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.5rem'
+        }}>
+          <i className="fas fa-info-circle" style={{ color: '#aa8d6f' }}></i>
+          Legend:
+        </h4>
+        <div style={{ display: 'flex', gap: '3rem', flexWrap: 'wrap' }}>
+          <div style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: '0.75rem',
+            padding: '0.75rem 1.25rem',
+            backgroundColor: 'rgba(212,237,218,0.3)',
+            borderRadius: '10px',
+            border: '2px solid #c3e6cb'
+          }}>
             <div style={{
-              width: '20px',
-              height: '15px',
+              width: '30px',
+              height: '25px',
               backgroundColor: '#d4edda',
-              borderRadius: '2px'
-            }}></div>
-            <span>Present</span>
+              borderRadius: '6px',
+              border: '2px solid #c3e6cb',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              <i className="fas fa-check" style={{ color: '#155724', fontSize: '0.9rem' }}></i>
+            </div>
+            <span style={{ fontWeight: '600', color: '#155724' }}>Present</span>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          
+          <div style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: '0.75rem',
+            padding: '0.75rem 1.25rem',
+            backgroundColor: 'rgba(248,215,218,0.3)',
+            borderRadius: '10px',
+            border: '2px solid #f5c6cb'
+          }}>
             <div style={{
-              width: '20px',
-              height: '15px',
+              width: '30px',
+              height: '25px',
               backgroundColor: '#f8d7da',
-              borderRadius: '2px'
-            }}></div>
-            <span>Absent</span>
+              borderRadius: '6px',
+              border: '2px solid #f5c6cb',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              <i className="fas fa-times" style={{ color: '#721c24', fontSize: '0.9rem' }}></i>
+            </div>
+            <span style={{ fontWeight: '600', color: '#721c24' }}>Absent</span>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          
+          <div style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: '0.75rem',
+            padding: '0.75rem 1.25rem',
+            backgroundColor: 'rgba(170,141,111,0.1)',
+            borderRadius: '10px',
+            border: '2px solid rgba(170,141,111,0.3)'
+          }}>
             <div style={{
-              width: '20px',
-              height: '15px',
-              backgroundColor: '#e3f2fd',
-              borderRadius: '2px'
-            }}></div>
-            <span>Today</span>
+              width: '30px',
+              height: '25px',
+              backgroundColor: 'rgba(170,141,111,0.15)',
+              borderRadius: '6px',
+              border: '2px solid rgba(170,141,111,0.3)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              <i className="fas fa-calendar-day" style={{ color: '#aa8d6f', fontSize: '0.9rem' }}></i>
+            </div>
+            <span style={{ fontWeight: '600', color: '#675541' }}>Today</span>
           </div>
         </div>
       </div>

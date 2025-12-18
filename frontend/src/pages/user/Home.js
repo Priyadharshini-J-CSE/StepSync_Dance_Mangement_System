@@ -30,7 +30,7 @@ const Home = () => {
   const fetchNotifications = async () => {
     try {
       const response = await axios.get('/api/notifications');
-      setNotifications(response.data.slice(0, 5)); // Get recent 5 notifications
+      setNotifications(response.data.slice(0, 5));
     } catch (error) {
       console.error('Error fetching notifications:', error);
     }
@@ -61,16 +61,20 @@ const Home = () => {
 
   const renderStarRating = (rating, onChange) => {
     return (
-      <div style={{ display: 'flex', gap: '0.25rem' }}>
+      <div style={{ display: 'flex', gap: '0.5rem' }}>
         {[1, 2, 3, 4, 5].map(star => (
           <span
             key={star}
             onClick={() => onChange && onChange(star)}
             style={{
-              fontSize: '1.5rem',
+              fontSize: '2rem',
               color: star <= rating ? '#ffc107' : '#e0e0e0',
-              cursor: onChange ? 'pointer' : 'default'
+              cursor: onChange ? 'pointer' : 'default',
+              transition: 'all 0.2s ease',
+              textShadow: star <= rating ? '0 2px 4px rgba(255,193,7,0.3)' : 'none'
             }}
+            onMouseEnter={(e) => onChange && (e.target.style.transform = 'scale(1.2)')}
+            onMouseLeave={(e) => onChange && (e.target.style.transform = 'scale(1)')}
           >
             ★
           </span>
@@ -80,111 +84,168 @@ const Home = () => {
   };
 
   if (loading) {
-    return <div>Loading dashboard...</div>;
+    return (
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        minHeight: '60vh',
+        fontSize: '1.2rem',
+        color: '#675541'
+      }}>
+        Loading dashboard...
+      </div>
+    );
   }
 
   return (
-    <div>
-      <h2>Dashboard</h2>
+    <div style={{ padding: '1.5rem' }}>
+      <h2 style={{ 
+        color: '#675541', 
+        fontSize: '2.5rem', 
+        marginBottom: '2rem',
+        fontWeight: '700',
+        textAlign: 'center',
+        textShadow: '2px 2px 4px rgba(103,85,65,0.1)'
+      }}>
+        Dashboard
+      </h2>
       
       {/* Stats Cards */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-        gap: '1rem',
-        marginBottom: '2rem'
+        gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+        gap: '1.5rem',
+        marginBottom: '3rem'
       }}>
-        <div style={{
-          backgroundColor: 'white',
-          padding: '1.5rem',
-          borderRadius: '8px',
-          boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-          textAlign: 'center'
-        }}>
-          <h3 style={{ margin: '0 0 0.5rem 0', color: '#333' }}>Total Classes</h3>
-          <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#333' }}>
-            {stats.totalClasses || 0}
+        {[
+          { title: 'Total Classes', value: stats.totalClasses || 0, icon: 'fas fa-book' },
+          { title: 'Classes Attended', value: stats.presentClasses || 0, icon: 'fas fa-check-circle' },
+          { title: 'Attendance Rate', value: `${stats.attendanceRate || 0}%`, icon: 'fas fa-chart-bar' },
+          { title: 'This Month', value: stats.monthlyAttendance || 0, icon: 'fas fa-calendar-alt' }
+        ].map((stat, index) => (
+          <div key={index} style={{
+            background: 'linear-gradient(135deg, #ffffff 0%, #f8f6f3 100%)',
+            padding: '2rem',
+            borderRadius: '16px',
+            boxShadow: '0 8px 16px rgba(103,85,65,0.15)',
+            textAlign: 'center',
+            transition: 'all 0.3s ease',
+            border: '1px solid rgba(170,141,111,0.2)',
+            cursor: 'default'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = 'translateY(-5px)';
+            e.currentTarget.style.boxShadow = '0 12px 24px rgba(103,85,65,0.25)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = 'translateY(0)';
+            e.currentTarget.style.boxShadow = '0 8px 16px rgba(103,85,65,0.15)';
+          }}>
+            <i className={stat.icon} style={{ fontSize: '3rem', marginBottom: '0.5rem', color: '#aa8d6f' }}></i>
+            <h3 style={{ 
+              margin: '0 0 0.75rem 0', 
+              color: '#675541',
+              fontSize: '1rem',
+              fontWeight: '600',
+              textTransform: 'uppercase',
+              letterSpacing: '0.5px'
+            }}>
+              {stat.title}
+            </h3>
+            <div style={{ 
+              fontSize: '2.5rem', 
+              fontWeight: 'bold', 
+              color: '#aa8d6f',
+              textShadow: '2px 2px 4px rgba(170,141,111,0.2)'
+            }}>
+              {stat.value}
+            </div>
           </div>
-        </div>
-        
-        <div style={{
-          backgroundColor: 'white',
-          padding: '1.5rem',
-          borderRadius: '8px',
-          boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-          textAlign: 'center'
-        }}>
-          <h3 style={{ margin: '0 0 0.5rem 0', color: '#333' }}>Classes Attended</h3>
-          <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#333' }}>
-            {stats.presentClasses || 0}
-          </div>
-        </div>
-        
-        <div style={{
-          backgroundColor: 'white',
-          padding: '1.5rem',
-          borderRadius: '8px',
-          boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-          textAlign: 'center'
-        }}>
-          <h3 style={{ margin: '0 0 0.5rem 0', color: '#333' }}>Attendance Rate</h3>
-          <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#333' }}>
-            {stats.attendanceRate || 0}%
-          </div>
-        </div>
-        
-        <div style={{
-          backgroundColor: 'white',
-          padding: '1.5rem',
-          borderRadius: '8px',
-          boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-          textAlign: 'center'
-        }}>
-          <h3 style={{ margin: '0 0 0.5rem 0', color: '#333' }}>This Month</h3>
-          <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#333' }}>
-            {stats.monthlyAttendance || 0}
-          </div>
-        </div>
+        ))}
       </div>
 
       {/* Online Classes */}
       {onlineClasses.length > 0 && (
         <div style={{
-          backgroundColor: 'white',
-          padding: '2rem',
-          borderRadius: '8px',
-          boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-          marginBottom: '2rem'
+          background: 'linear-gradient(135deg, #ffffff 0%, #faf8f6 100%)',
+          padding: '2.5rem',
+          borderRadius: '16px',
+          boxShadow: '0 8px 20px rgba(103,85,65,0.15)',
+          marginBottom: '3rem',
+          border: '1px solid rgba(170,141,111,0.2)'
         }}>
-          <h3 style={{ marginBottom: '1rem' }}>My Online Classes</h3>
-          <div style={{ display: 'grid', gap: '1rem' }}>
+          <h3 style={{ 
+            marginBottom: '1.5rem', 
+            color: '#675541',
+            fontSize: '1.5rem',
+            fontWeight: '700',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem'
+          }}>
+            <i className="fas fa-video"></i> My Online Classes
+          </h3>
+          <div style={{ display: 'grid', gap: '1.5rem' }}>
             {onlineClasses.map(classItem => (
               <div key={classItem._id} style={{
-                border: '1px solid #ddd',
-                borderRadius: '8px',
-                padding: '1rem',
+                border: '2px solid rgba(170,141,111,0.2)',
+                borderRadius: '12px',
+                padding: '1.5rem',
                 display: 'flex',
                 justifyContent: 'space-between',
-                alignItems: 'center'
+                alignItems: 'center',
+                backgroundColor: 'rgba(255,255,255,0.8)',
+                transition: 'all 0.3s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = '#aa8d6f';
+                e.currentTarget.style.backgroundColor = 'white';
+                e.currentTarget.style.transform = 'translateX(5px)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = 'rgba(170,141,111,0.2)';
+                e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.8)';
+                e.currentTarget.style.transform = 'translateX(0)';
               }}>
                 <div>
-                  <h4 style={{ margin: '0 0 0.5rem 0' }}>{classItem.name}</h4>
-                  <p style={{ margin: 0, color: '#666' }}>
-                    🌐 Online • {classItem.schedule.time} • {classItem.instructor}
+                  <h4 style={{ 
+                    margin: '0 0 0.5rem 0', 
+                    color: '#675541',
+                    fontSize: '1.2rem',
+                    fontWeight: '600'
+                  }}>
+                    {classItem.name}
+                  </h4>
+                  <p style={{ margin: 0, color: '#888', fontSize: '0.95rem' }}>
+                    <i className="fas fa-globe"></i> Online • {classItem.schedule.time} • {classItem.instructor}
                   </p>
                 </div>
                 <button
                   onClick={() => navigate(`/user/video-call/${classItem._id}`)}
                   style={{
-                    backgroundColor: '#007bff',
+                    background: 'linear-gradient(135deg, #aa8d6f 0%, #8b7355 100%)',
                     color: 'white',
                     border: 'none',
-                    padding: '0.75rem 1.5rem',
-                    borderRadius: '4px',
-                    cursor: 'pointer'
+                    padding: '0.75rem 1.75rem',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    fontSize: '1rem',
+                    fontWeight: '600',
+                    boxShadow: '0 4px 12px rgba(170,141,111,0.3)',
+                    transition: 'all 0.3s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.transform = 'scale(1.05)';
+                    e.target.style.boxShadow = '0 6px 16px rgba(170,141,111,0.4)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.transform = 'scale(1)';
+                    e.target.style.boxShadow = '0 4px 12px rgba(170,141,111,0.3)';
                   }}
                 >
-                  🎥 Join Class
+                  <i className="fas fa-video" style={{ marginRight: '0.5rem' }}></i>
+                  Join Class
                 </button>
               </div>
             ))}
@@ -192,55 +253,90 @@ const Home = () => {
         </div>
       )}
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
+      <div style={{ 
+        display: 'grid', 
+        gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', 
+        gap: '2rem',
+        marginBottom: '3rem'
+      }}>
         {/* Progress Chart */}
         <div style={{
-          backgroundColor: 'white',
-          padding: '2rem',
-          borderRadius: '8px',
-          boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+          background: 'linear-gradient(135deg, #ffffff 0%, #faf8f6 100%)',
+          padding: '2.5rem',
+          borderRadius: '16px',
+          boxShadow: '0 8px 20px rgba(103,85,65,0.15)',
+          border: '1px solid rgba(170,141,111,0.2)'
         }}>
-          <h3 style={{ marginBottom: '1rem' }}>Progress Overview</h3>
-          <div style={{ position: 'relative', height: '200px' }}>
-            {/* Simple Progress Bar */}
-            <div style={{ marginBottom: '1rem' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+          <h3 style={{ 
+            marginBottom: '2rem', 
+            color: '#675541',
+            fontSize: '1.5rem',
+            fontWeight: '700',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem'
+          }}>
+            <i className="fas fa-chart-line"></i> Progress Overview
+          </h3>
+          <div style={{ position: 'relative' }}>
+            <div style={{ marginBottom: '2rem' }}>
+              <div style={{ 
+                display: 'flex', 
+                justifyContent: 'space-between', 
+                marginBottom: '0.75rem',
+                color: '#675541',
+                fontWeight: '600'
+              }}>
                 <span>Attendance Rate</span>
-                <span>{stats.attendanceRate}%</span>
+                <span style={{ color: '#aa8d6f', fontSize: '1.1rem' }}>{stats.attendanceRate}%</span>
               </div>
               <div style={{
                 width: '100%',
-                height: '20px',
-                backgroundColor: '#e0e0e0',
-                borderRadius: '10px',
-                overflow: 'hidden'
+                height: '24px',
+                backgroundColor: '#f0ede8',
+                borderRadius: '12px',
+                overflow: 'hidden',
+                boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.1)'
               }}>
                 <div style={{
                   width: `${stats.attendanceRate}%`,
                   height: '100%',
-                  backgroundColor: '#666',
-                  transition: 'width 0.3s ease'
+                  background: 'linear-gradient(90deg, #aa8d6f 0%, #8b7355 100%)',
+                  transition: 'width 0.5s ease',
+                  borderRadius: '12px',
+                  boxShadow: '0 2px 8px rgba(170,141,111,0.4)'
                 }}></div>
               </div>
             </div>
             
-            <div style={{ marginBottom: '1rem' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+            <div>
+              <div style={{ 
+                display: 'flex', 
+                justifyContent: 'space-between', 
+                marginBottom: '0.75rem',
+                color: '#675541',
+                fontWeight: '600'
+              }}>
                 <span>Monthly Goal</span>
-                <span>{Math.min(stats.monthlyAttendance * 10, 100)}%</span>
+                <span style={{ color: '#aa8d6f', fontSize: '1.1rem' }}>
+                  {Math.min(stats.monthlyAttendance * 10, 100)}%
+                </span>
               </div>
               <div style={{
                 width: '100%',
-                height: '20px',
-                backgroundColor: '#e0e0e0',
-                borderRadius: '10px',
-                overflow: 'hidden'
+                height: '24px',
+                backgroundColor: '#f0ede8',
+                borderRadius: '12px',
+                overflow: 'hidden',
+                boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.1)'
               }}>
                 <div style={{
                   width: `${Math.min(stats.monthlyAttendance * 10, 100)}%`,
                   height: '100%',
-                  backgroundColor: '#666',
-                  transition: 'width 0.3s ease'
+                  background: 'linear-gradient(90deg, #aa8d6f 0%, #8b7355 100%)',
+                  transition: 'width 0.5s ease',
+                  borderRadius: '12px',
+                  boxShadow: '0 2px 8px rgba(170,141,111,0.4)'
                 }}></div>
               </div>
             </div>
@@ -249,28 +345,68 @@ const Home = () => {
 
         {/* Recent Notifications */}
         <div style={{
-          backgroundColor: 'white',
-          padding: '2rem',
-          borderRadius: '8px',
-          boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+          background: 'linear-gradient(135deg, #ffffff 0%, #faf8f6 100%)',
+          padding: '2.5rem',
+          borderRadius: '16px',
+          boxShadow: '0 8px 20px rgba(103,85,65,0.15)',
+          border: '1px solid rgba(170,141,111,0.2)'
         }}>
-          <h3 style={{ marginBottom: '1rem' }}>Recent Notifications</h3>
-          <div style={{ maxHeight: '200px', overflowY: 'auto' }}>
+          <h3 style={{ 
+            marginBottom: '1.5rem', 
+            color: '#675541',
+            fontSize: '1.5rem',
+            fontWeight: '700',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem'
+          }}>
+            <i className="fas fa-bell"></i> Recent Notifications
+          </h3>
+          <div style={{ 
+            maxHeight: '280px', 
+            overflowY: 'auto',
+            paddingRight: '0.5rem'
+          }}>
             {notifications.length === 0 ? (
-              <p style={{ color: '#666', textAlign: 'center' }}>No recent notifications</p>
+              <p style={{ 
+                color: '#999', 
+                textAlign: 'center',
+                padding: '2rem',
+                fontSize: '1rem'
+              }}>
+                No recent notifications
+              </p>
             ) : (
               notifications.map(notification => (
                 <div key={notification._id} style={{
-                  padding: '0.75rem',
-                  marginBottom: '0.5rem',
-                  backgroundColor: notification.isRead ? '#f8f9fa' : '#f0f0f0',
-                  borderRadius: '4px',
-                  borderLeft: `4px solid ${notification.isRead ? '#999' : '#333'}`
+                  padding: '1rem',
+                  marginBottom: '1rem',
+                  backgroundColor: notification.isRead ? 'rgba(248,246,243,0.5)' : 'rgba(255,255,255,0.9)',
+                  borderRadius: '10px',
+                  borderLeft: `4px solid ${notification.isRead ? '#ccc' : '#aa8d6f'}`,
+                  boxShadow: notification.isRead ? 'none' : '0 2px 8px rgba(170,141,111,0.2)',
+                  transition: 'all 0.3s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateX(5px)';
+                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(170,141,111,0.25)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateX(0)';
+                  e.currentTarget.style.boxShadow = notification.isRead ? 'none' : '0 2px 8px rgba(170,141,111,0.2)';
                 }}>
-                  <div style={{ fontSize: '0.9rem', fontWeight: notification.isRead ? 'normal' : 'bold' }}>
+                  <div style={{ 
+                    fontSize: '0.95rem', 
+                    fontWeight: notification.isRead ? 'normal' : '600',
+                    color: '#675541',
+                    marginBottom: '0.5rem'
+                  }}>
                     {notification.message}
                   </div>
-                  <div style={{ fontSize: '0.8rem', color: '#666', marginTop: '0.25rem' }}>
+                  <div style={{ 
+                    fontSize: '0.8rem', 
+                    color: '#999'
+                  }}>
                     {new Date(notification.createdAt).toLocaleDateString()}
                   </div>
                 </div>
@@ -282,23 +418,49 @@ const Home = () => {
 
       {/* Feedback Form */}
       <div style={{
-        backgroundColor: 'white',
-        padding: '2rem',
-        borderRadius: '8px',
-        boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-        marginTop: '2rem'
+        background: 'linear-gradient(135deg, #ffffff 0%, #faf8f6 100%)',
+        padding: '3rem',
+        borderRadius: '16px',
+        boxShadow: '0 8px 20px rgba(103,85,65,0.15)',
+        border: '1px solid rgba(170,141,111,0.2)'
       }}>
-        <h3 style={{ marginBottom: '1rem' }}>Share Your Feedback</h3>
-        <form onSubmit={submitFeedback}>
-          <div style={{ marginBottom: '1rem' }}>
-            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
+        <h3 style={{ 
+          marginBottom: '2rem', 
+          color: '#675541',
+          fontSize: '1.8rem',
+          fontWeight: '700',
+          textAlign: 'center',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '0.5rem'
+        }}>
+          <i className="fas fa-comments"></i> Share Your Feedback
+        </h3>
+        <form onSubmit={submitFeedback} style={{ maxWidth: '600px', margin: '0 auto' }}>
+          <div style={{ marginBottom: '2rem' }}>
+            <label style={{ 
+              display: 'block', 
+              marginBottom: '1rem', 
+              fontWeight: '600',
+              color: '#675541',
+              fontSize: '1.1rem'
+            }}>
               Rating:
             </label>
-            {renderStarRating(feedback.rating, (rating) => setFeedback({...feedback, rating}))}
+            <div style={{ display: 'flex', justifyContent: 'center' }}>
+              {renderStarRating(feedback.rating, (rating) => setFeedback({...feedback, rating}))}
+            </div>
           </div>
           
-          <div style={{ marginBottom: '1rem' }}>
-            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
+          <div style={{ marginBottom: '2rem' }}>
+            <label style={{ 
+              display: 'block', 
+              marginBottom: '1rem', 
+              fontWeight: '600',
+              color: '#675541',
+              fontSize: '1.1rem'
+            }}>
               Comment:
             </label>
             <textarea
@@ -308,11 +470,24 @@ const Home = () => {
               placeholder="Share your experience with our Zumba classes..."
               style={{
                 width: '100%',
-                padding: '0.75rem',
-                border: '1px solid #ddd',
-                borderRadius: '4px',
-                minHeight: '100px',
-                resize: 'vertical'
+                padding: '1rem',
+                border: '2px solid rgba(170,141,111,0.3)',
+                borderRadius: '10px',
+                minHeight: '120px',
+                resize: 'vertical',
+                backgroundColor: 'rgba(255,255,255,0.9)',
+                fontSize: '1rem',
+                fontFamily: 'inherit',
+                transition: 'all 0.3s ease',
+                boxSizing: 'border-box'
+              }}
+              onFocus={(e) => {
+                e.target.style.borderColor = '#aa8d6f';
+                e.target.style.boxShadow = '0 0 0 3px rgba(170,141,111,0.1)';
+              }}
+              onBlur={(e) => {
+                e.target.style.borderColor = 'rgba(170,141,111,0.3)';
+                e.target.style.boxShadow = 'none';
               }}
             />
           </div>
@@ -320,13 +495,25 @@ const Home = () => {
           <button
             type="submit"
             style={{
-              backgroundColor: '#333',
+              background: 'linear-gradient(135deg, #aa8d6f 0%, #8b7355 100%)',
               color: 'white',
               border: 'none',
-              padding: '0.75rem 2rem',
-              borderRadius: '4px',
+              padding: '1rem 3rem',
+              borderRadius: '10px',
               cursor: 'pointer',
-              fontSize: '16px'
+              fontSize: '1.1rem',
+              fontWeight: '600',
+              width: '100%',
+              boxShadow: '0 4px 12px rgba(170,141,111,0.3)',
+              transition: 'all 0.3s ease'
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.transform = 'translateY(-2px)';
+              e.target.style.boxShadow = '0 6px 20px rgba(170,141,111,0.4)';
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.transform = 'translateY(0)';
+              e.target.style.boxShadow = '0 4px 12px rgba(170,141,111,0.3)';
             }}
           >
             Submit Feedback

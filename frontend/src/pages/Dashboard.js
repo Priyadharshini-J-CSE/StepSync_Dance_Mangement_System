@@ -19,7 +19,10 @@ const Dashboard = () => {
       alignItems: 'center', 
       justifyContent: 'center', 
       minHeight: '100vh',
-      backgroundColor: '#f0f8ff'
+      backgroundImage: 'url(/background.png)', 
+      backgroundSize: 'cover', 
+      backgroundPosition: 'center', 
+      backgroundAttachment: 'fixed'
     }}>
       <h1 style={{ marginBottom: '2rem', color: '#333' }}>Zumba Class Management System</h1>
       <div style={{ display: 'flex', gap: '1rem' }}>

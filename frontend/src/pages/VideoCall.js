@@ -1,12 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
 
 const VideoCall = () => {
-  const { classId } = useParams();
-  const navigate = useNavigate();
-  const [classData, setClassData] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [classData, setClassData] = useState({
+    _id: '1',
+    name: 'Contemporary Dance Masterclass',
+    instructor: 'Sarah Martinez',
+    mode: 'online',
+    schedule: {
+      time: 'Mon, Wed, Fri - 6:00 PM',
+      duration: 60
+    }
+  });
+  const [loading, setLoading] = useState(false);
   const [isJoined, setIsJoined] = useState(false);
   const [participants, setParticipants] = useState([]);
   const [chatMessages, setChatMessages] = useState([]);
@@ -15,39 +20,22 @@ const VideoCall = () => {
   const [isVideoOff, setIsVideoOff] = useState(false);
   const [joinTime, setJoinTime] = useState(null);
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => {
-    fetchClassData();
-  }, [classId]);
-
-  const fetchClassData = async () => {
-    try {
-      const response = await axios.get(`/api/classes`);
-      const foundClass = response.data.find(c => c._id === classId);
-      setClassData(foundClass);
-      setLoading(false);
-    } catch (error) {
-      console.error('Error fetching class data:', error);
-      setLoading(false);
-    }
-  };
-
   const joinMeeting = () => {
     setIsJoined(true);
     setJoinTime(new Date());
     // Simulate adding user to participants
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
-    if (user && user._id) {
-      setParticipants(prev => [...prev, { id: user._id, name: user.name, role: user.role }]);
-    }
+    setParticipants(prev => [...prev, { 
+      id: '1', 
+      name: 'Demo User', 
+      role: 'student' 
+    }]);
   };
 
   const sendMessage = () => {
     if (newMessage.trim()) {
-      const user = JSON.parse(localStorage.getItem('user') || '{}');
       const message = {
         id: Date.now(),
-        sender: user.name || 'Anonymous',
+        sender: 'Demo User',
         text: newMessage,
         timestamp: new Date().toLocaleTimeString()
       };
@@ -64,31 +52,8 @@ const VideoCall = () => {
     setIsVideoOff(!isVideoOff);
   };
 
-  const leaveCall = async () => {
-    if (joinTime) {
-      const leaveTime = new Date();
-      const duration = Math.floor((leaveTime - joinTime) / 1000 / 60); // minutes
-      
-      // Mark attendance if joined for at least 5 minutes
-      if (duration >= 5) {
-        try {
-          await axios.post('/api/attendance', {
-            classId: classId,
-            date: new Date().toISOString().split('T')[0],
-            status: 'present'
-          });
-        } catch (error) {
-          console.error('Error marking attendance:', error);
-        }
-      }
-    }
-    
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
-    if (user.role === 'admin') {
-      navigate('/admin');
-    } else {
-      navigate('/user');
-    }
+  const leaveCall = () => {
+    alert('Would navigate back to dashboard');
   };
 
   if (loading) {
@@ -97,9 +62,12 @@ const VideoCall = () => {
         display: 'flex', 
         justifyContent: 'center', 
         alignItems: 'center', 
-        height: '100vh' 
+        height: '100vh',
+        fontSize: '1.2rem',
+        color: '#675541'
       }}>
-        <div>Loading...</div>
+        <i className="fas fa-spinner fa-spin" style={{ marginRight: '0.5rem' }}></i>
+        Loading...
       </div>
     );
   }
@@ -111,16 +79,20 @@ const VideoCall = () => {
         justifyContent: 'center', 
         alignItems: 'center', 
         height: '100vh',
-        flexDirection: 'column'
+        flexDirection: 'column',
+        gap: '1rem'
       }}>
         <h2>Class not found</h2>
         <button onClick={leaveCall} style={{
-          backgroundColor: '#007bff',
+          background: 'linear-gradient(135deg, #aa8d6f 0%, #8b7355 100%)',
           color: 'white',
           border: 'none',
-          padding: '0.75rem 1.5rem',
-          borderRadius: '4px',
-          cursor: 'pointer'
+          padding: '1rem 2rem',
+          borderRadius: '10px',
+          cursor: 'pointer',
+          fontSize: '1rem',
+          fontWeight: '600',
+          boxShadow: '0 4px 12px rgba(170,141,111,0.3)'
         }}>
           Back
         </button>
@@ -138,38 +110,69 @@ const VideoCall = () => {
     }}>
       {/* Header */}
       <div style={{
-        backgroundColor: '#2d2d2d',
-        padding: '1rem',
+        background: 'linear-gradient(135deg, #2d2d2d 0%, #1a1a1a 100%)',
+        padding: '1.25rem 2rem',
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
-        borderBottom: '1px solid #444'
+        borderBottom: '2px solid #aa8d6f',
+        boxShadow: '0 4px 12px rgba(0,0,0,0.3)'
       }}>
         <div>
-          <h2 style={{ margin: 0 }}>{classData.name}</h2>
-          <p style={{ margin: '0.25rem 0 0 0', color: '#ccc' }}>
+          <h2 style={{ margin: 0, fontSize: '1.8rem', fontWeight: '700' }}>
+            <i className="fas fa-video" style={{ marginRight: '0.75rem', color: '#aa8d6f' }}></i>
+            {classData.name}
+          </h2>
+          <p style={{ margin: '0.5rem 0 0 0', color: '#ccc', fontSize: '1rem' }}>
+            <i className="fas fa-user-tie" style={{ marginRight: '0.5rem', color: '#aa8d6f' }}></i>
             {classData.instructor} • {classData.schedule.time}
           </p>
         </div>
         <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-          <span style={{ color: '#28a745' }}>● LIVE</span>
+          <span style={{ 
+            color: '#28a745',
+            fontWeight: '600',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            fontSize: '1.1rem'
+          }}>
+            <i className="fas fa-circle" style={{ fontSize: '0.7rem', animation: 'pulse 2s infinite' }}></i>
+            LIVE
+          </span>
           <button
             onClick={leaveCall}
             style={{
-              backgroundColor: '#dc3545',
+              background: 'linear-gradient(135deg, #dc3545 0%, #c82333 100%)',
               color: 'white',
               border: 'none',
-              padding: '0.5rem 1rem',
-              borderRadius: '4px',
-              cursor: 'pointer'
+              padding: '0.75rem 1.5rem',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              fontWeight: '600',
+              fontSize: '1rem',
+              boxShadow: '0 4px 12px rgba(220,53,69,0.4)',
+              transition: 'all 0.3s ease',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem'
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.transform = 'translateY(-2px)';
+              e.target.style.boxShadow = '0 6px 16px rgba(220,53,69,0.5)';
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.transform = 'translateY(0)';
+              e.target.style.boxShadow = '0 4px 12px rgba(220,53,69,0.4)';
             }}
           >
+            <i className="fas fa-sign-out-alt"></i>
             Exit
           </button>
         </div>
       </div>
 
-      <div style={{ display: 'flex', flex: 1 }}>
+      <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
         {/* Main Video Area */}
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
           {/* Video Container */}
@@ -184,43 +187,96 @@ const VideoCall = () => {
             {!isJoined ? (
               <div style={{
                 textAlign: 'center',
-                padding: '2rem'
+                padding: '2rem',
+                maxWidth: '500px'
               }}>
                 <div style={{
-                  backgroundColor: '#2d2d2d',
-                  padding: '2rem',
-                  borderRadius: '8px',
-                  maxWidth: '400px'
+                  background: 'linear-gradient(135deg, #2d2d2d 0%, #1a1a1a 100%)',
+                  padding: '3rem',
+                  borderRadius: '20px',
+                  border: '2px solid #aa8d6f',
+                  boxShadow: '0 12px 28px rgba(170,141,111,0.3)'
                 }}>
-                  <h3>Ready to join?</h3>
-                  <p style={{ color: '#ccc', marginBottom: '1.5rem' }}>
+                  <div style={{
+                    width: '80px',
+                    height: '80px',
+                    margin: '0 auto 1.5rem',
+                    background: 'linear-gradient(135deg, #aa8d6f 0%, #8b7355 100%)',
+                    borderRadius: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '2.5rem'
+                  }}>
+                    🎥
+                  </div>
+                  <h3 style={{ fontSize: '1.8rem', marginBottom: '1rem', color: '#fff' }}>
+                    Ready to join?
+                  </h3>
+                  <p style={{ color: '#ccc', marginBottom: '2rem', fontSize: '1rem', lineHeight: '1.6' }}>
                     Make sure your camera and microphone are working properly before joining the class.
                   </p>
                   
-                  <div style={{ marginBottom: '1.5rem' }}>
-                    <h4>Pre-class Checklist:</h4>
-                    <ul style={{ textAlign: 'left', color: '#ccc' }}>
-                      <li>Stable internet connection</li>
-                      <li>Comfortable workout space</li>
-                      <li>Water bottle nearby</li>
-                      <li>Camera and microphone ready</li>
+                  <div style={{ 
+                    marginBottom: '2rem',
+                    textAlign: 'left',
+                    background: 'rgba(170,141,111,0.1)',
+                    padding: '1.5rem',
+                    borderRadius: '12px',
+                    border: '1px solid rgba(170,141,111,0.3)'
+                  }}>
+                    <h4 style={{ 
+                      marginTop: 0,
+                      marginBottom: '1rem',
+                      color: '#aa8d6f',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.5rem'
+                    }}>
+                      <i className="fas fa-clipboard-check"></i>
+                      Pre-class Checklist:
+                    </h4>
+                    <ul style={{ 
+                      color: '#ccc',
+                      paddingLeft: '1.5rem',
+                      margin: 0,
+                      lineHeight: '2'
+                    }}>
+                      <li><i className="fas fa-wifi" style={{ color: '#aa8d6f', marginRight: '0.5rem' }}></i>Stable internet connection</li>
+                      <li><i className="fas fa-walking" style={{ color: '#aa8d6f', marginRight: '0.5rem' }}></i>Comfortable workout space</li>
+                      <li><i className="fas fa-tint" style={{ color: '#aa8d6f', marginRight: '0.5rem' }}></i>Water bottle nearby</li>
+                      <li><i className="fas fa-video" style={{ color: '#aa8d6f', marginRight: '0.5rem' }}></i>Camera and microphone ready</li>
                     </ul>
                   </div>
 
                   <button
                     onClick={joinMeeting}
                     style={{
-                      backgroundColor: '#28a745',
+                      background: 'linear-gradient(135deg, #28a745 0%, #1e7e34 100%)',
                       color: 'white',
                       border: 'none',
-                      padding: '1rem 2rem',
-                      borderRadius: '4px',
+                      padding: '1.25rem 2.5rem',
+                      borderRadius: '12px',
                       cursor: 'pointer',
-                      fontSize: '1.1rem',
-                      fontWeight: 'bold'
+                      fontSize: '1.2rem',
+                      fontWeight: '700',
+                      boxShadow: '0 6px 20px rgba(40,167,69,0.4)',
+                      transition: 'all 0.3s ease',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '0.75rem'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.target.style.transform = 'scale(1.05)';
+                      e.target.style.boxShadow = '0 8px 24px rgba(40,167,69,0.5)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.target.style.transform = 'scale(1)';
+                      e.target.style.boxShadow = '0 6px 20px rgba(40,167,69,0.4)';
                     }}
                   >
-                    🎥 Join Class Now
+                    <i className="fas fa-video"></i>
+                    Join Class Now
                   </button>
                 </div>
               </div>
@@ -231,23 +287,38 @@ const VideoCall = () => {
                 display: 'flex',
                 justifyContent: 'center',
                 alignItems: 'center',
-                backgroundColor: '#333'
+                backgroundColor: '#1a1a1a',
+                backgroundImage: 'linear-gradient(45deg, #1a1a1a 25%, #2d2d2d 25%, #2d2d2d 50%, #1a1a1a 50%, #1a1a1a 75%, #2d2d2d 75%, #2d2d2d)',
+                backgroundSize: '40px 40px'
               }}>
-                <div style={{ textAlign: 'center' }}>
+                <div style={{ 
+                  textAlign: 'center',
+                  background: 'rgba(45,45,45,0.9)',
+                  padding: '3rem',
+                  borderRadius: '20px',
+                  border: '2px solid #aa8d6f',
+                  backdropFilter: 'blur(10px)'
+                }}>
                   <div style={{
                     width: '200px',
                     height: '150px',
-                    backgroundColor: '#555',
-                    borderRadius: '8px',
+                    background: 'linear-gradient(135deg, #555 0%, #333 100%)',
+                    borderRadius: '16px',
                     display: 'flex',
                     justifyContent: 'center',
                     alignItems: 'center',
-                    margin: '0 auto 1rem'
+                    margin: '0 auto 1.5rem',
+                    fontSize: '4rem',
+                    border: '3px solid #aa8d6f',
+                    boxShadow: '0 8px 20px rgba(0,0,0,0.5)'
                   }}>
                     {isVideoOff ? '📹' : '👤'}
                   </div>
-                  <p>You are connected to the meeting</p>
-                  <p style={{ color: '#ccc', fontSize: '0.9rem' }}>
+                  <p style={{ fontSize: '1.3rem', fontWeight: '600', marginBottom: '0.5rem' }}>
+                    <i className="fas fa-check-circle" style={{ color: '#28a745', marginRight: '0.5rem' }}></i>
+                    You are connected
+                  </p>
+                  <p style={{ color: '#ccc', fontSize: '1rem', margin: 0 }}>
                     Meeting opened in new tab. Use controls below to manage your session.
                   </p>
                 </div>
@@ -258,53 +329,99 @@ const VideoCall = () => {
           {/* Controls */}
           {isJoined && (
             <div style={{
-              backgroundColor: '#2d2d2d',
-              padding: '1rem',
+              background: 'linear-gradient(135deg, #2d2d2d 0%, #1a1a1a 100%)',
+              padding: '1.5rem',
               display: 'flex',
               justifyContent: 'center',
-              gap: '1rem'
+              gap: '1.5rem',
+              borderTop: '2px solid #aa8d6f',
+              boxShadow: '0 -4px 12px rgba(0,0,0,0.3)'
             }}>
               <button
                 onClick={toggleMute}
                 style={{
-                  backgroundColor: isMuted ? '#dc3545' : '#28a745',
+                  background: isMuted 
+                    ? 'linear-gradient(135deg, #dc3545 0%, #c82333 100%)'
+                    : 'linear-gradient(135deg, #28a745 0%, #1e7e34 100%)',
                   color: 'white',
                   border: 'none',
-                  padding: '0.75rem',
+                  padding: '1rem',
                   borderRadius: '50%',
                   cursor: 'pointer',
-                  width: '50px',
-                  height: '50px'
+                  width: '60px',
+                  height: '60px',
+                  fontSize: '1.5rem',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+                  transition: 'all 0.3s ease',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.transform = 'scale(1.1)';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.transform = 'scale(1)';
                 }}
               >
-                {isMuted ? '🔇' : '🎤'}
+                <i className={isMuted ? 'fas fa-microphone-slash' : 'fas fa-microphone'}></i>
               </button>
               <button
                 onClick={toggleVideo}
                 style={{
-                  backgroundColor: isVideoOff ? '#dc3545' : '#28a745',
+                  background: isVideoOff 
+                    ? 'linear-gradient(135deg, #dc3545 0%, #c82333 100%)'
+                    : 'linear-gradient(135deg, #28a745 0%, #1e7e34 100%)',
                   color: 'white',
                   border: 'none',
-                  padding: '0.75rem',
+                  padding: '1rem',
                   borderRadius: '50%',
                   cursor: 'pointer',
-                  width: '50px',
-                  height: '50px'
+                  width: '60px',
+                  height: '60px',
+                  fontSize: '1.5rem',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+                  transition: 'all 0.3s ease',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.transform = 'scale(1.1)';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.transform = 'scale(1)';
                 }}
               >
-                {isVideoOff ? '📹' : '🎥'}
+                <i className={isVideoOff ? 'fas fa-video-slash' : 'fas fa-video'}></i>
               </button>
               <button
                 onClick={leaveCall}
                 style={{
-                  backgroundColor: '#dc3545',
+                  background: 'linear-gradient(135deg, #dc3545 0%, #c82333 100%)',
                   color: 'white',
                   border: 'none',
-                  padding: '0.75rem 1.5rem',
-                  borderRadius: '25px',
-                  cursor: 'pointer'
+                  padding: '1rem 2rem',
+                  borderRadius: '30px',
+                  cursor: 'pointer',
+                  fontSize: '1rem',
+                  fontWeight: '600',
+                  boxShadow: '0 4px 12px rgba(220,53,69,0.4)',
+                  transition: 'all 0.3s ease',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.transform = 'translateY(-2px)';
+                  e.target.style.boxShadow = '0 6px 16px rgba(220,53,69,0.5)';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.transform = 'translateY(0)';
+                  e.target.style.boxShadow = '0 4px 12px rgba(220,53,69,0.4)';
                 }}
               >
+                <i className="fas fa-phone-slash"></i>
                 Leave Call
               </button>
             </div>
@@ -313,85 +430,133 @@ const VideoCall = () => {
 
         {/* Sidebar */}
         <div style={{
-          width: '300px',
-          backgroundColor: '#2d2d2d',
+          width: '350px',
+          background: 'linear-gradient(135deg, #2d2d2d 0%, #1a1a1a 100%)',
           display: 'flex',
-          flexDirection: 'column'
+          flexDirection: 'column',
+          borderLeft: '2px solid #aa8d6f'
         }}>
           {/* Participants */}
-          <div style={{ padding: '1rem', borderBottom: '1px solid #444' }}>
-            <h4 style={{ margin: '0 0 1rem 0' }}>Participants ({participants.length})</h4>
-            <div style={{ maxHeight: '150px', overflowY: 'auto' }}>
-              {participants.map(participant => (
-                <div key={participant.id} style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.5rem',
-                  padding: '0.5rem',
-                  backgroundColor: '#3d3d3d',
-                  borderRadius: '4px',
-                  marginBottom: '0.5rem'
-                }}>
-                  <div style={{
-                    width: '30px',
-                    height: '30px',
-                    borderRadius: '50%',
-                    backgroundColor: '#007bff',
+          <div style={{ padding: '1.5rem', borderBottom: '2px solid #444' }}>
+            <h4 style={{ 
+              margin: '0 0 1rem 0',
+              fontSize: '1.3rem',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              color: '#aa8d6f'
+            }}>
+              <i className="fas fa-users"></i>
+              Participants ({participants.length})
+            </h4>
+            <div style={{ maxHeight: '200px', overflowY: 'auto' }}>
+              {participants.length === 0 ? (
+                <p style={{ color: '#888', textAlign: 'center', padding: '1rem' }}>
+                  No participants yet
+                </p>
+              ) : (
+                participants.map(participant => (
+                  <div key={participant.id} style={{
                     display: 'flex',
                     alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: '0.8rem'
+                    gap: '0.75rem',
+                    padding: '0.75rem',
+                    backgroundColor: '#3d3d3d',
+                    borderRadius: '8px',
+                    marginBottom: '0.75rem',
+                    border: '1px solid #555',
+                    transition: 'all 0.3s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = '#4d4d4d';
+                    e.currentTarget.style.borderColor = '#aa8d6f';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = '#3d3d3d';
+                    e.currentTarget.style.borderColor = '#555';
                   }}>
-                    {participant.name.charAt(0)}
-                  </div>
-                  <div>
-                    <div style={{ fontSize: '0.9rem' }}>{participant.name}</div>
-                    <div style={{ fontSize: '0.7rem', color: '#ccc' }}>
-                      {participant.role === 'admin' ? 'Instructor' : 'Student'}
+                    <div style={{
+                      width: '40px',
+                      height: '40px',
+                      borderRadius: '50%',
+                      background: 'linear-gradient(135deg, #aa8d6f 0%, #8b7355 100%)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '1rem',
+                      fontWeight: '700',
+                      border: '2px solid #675541'
+                    }}>
+                      {participant.name.charAt(0)}
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '1rem', fontWeight: '600' }}>{participant.name}</div>
+                      <div style={{ fontSize: '0.8rem', color: '#aa8d6f' }}>
+                        {participant.role === 'admin' ? '👨‍🏫 Instructor' : '🎓 Student'}
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))
+              )}
             </div>
           </div>
 
           {/* Chat */}
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-            <div style={{ padding: '1rem', borderBottom: '1px solid #444' }}>
-              <h4 style={{ margin: 0 }}>Chat</h4>
+            <div style={{ padding: '1.5rem', borderBottom: '2px solid #444' }}>
+              <h4 style={{ 
+                margin: 0,
+                fontSize: '1.3rem',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                color: '#aa8d6f'
+              }}>
+                <i className="fas fa-comments"></i>
+                Chat
+              </h4>
             </div>
             
             <div style={{ 
               flex: 1, 
               padding: '1rem', 
               overflowY: 'auto',
-              maxHeight: '300px'
+              minHeight: 0
             }}>
-              {chatMessages.map(message => (
-                <div key={message.id} style={{ marginBottom: '1rem' }}>
-                  <div style={{ 
-                    fontSize: '0.8rem', 
-                    color: '#ccc',
-                    marginBottom: '0.25rem'
-                  }}>
-                    {message.sender} • {message.timestamp}
+              {chatMessages.length === 0 ? (
+                <p style={{ color: '#888', textAlign: 'center', padding: '2rem' }}>
+                  No messages yet. Start the conversation!
+                </p>
+              ) : (
+                chatMessages.map(message => (
+                  <div key={message.id} style={{ marginBottom: '1rem' }}>
+                    <div style={{ 
+                      fontSize: '0.8rem', 
+                      color: '#aa8d6f',
+                      marginBottom: '0.25rem',
+                      fontWeight: '600'
+                    }}>
+                      {message.sender} • {message.timestamp}
+                    </div>
+                    <div style={{ 
+                      backgroundColor: '#3d3d3d',
+                      padding: '0.75rem',
+                      borderRadius: '8px',
+                      border: '1px solid #555',
+                      lineHeight: '1.5'
+                    }}>
+                      {message.text}
+                    </div>
                   </div>
-                  <div style={{ 
-                    backgroundColor: '#3d3d3d',
-                    padding: '0.5rem',
-                    borderRadius: '4px'
-                  }}>
-                    {message.text}
-                  </div>
-                </div>
-              ))}
+                ))
+              )}
             </div>
 
             <div style={{ 
               padding: '1rem',
-              borderTop: '1px solid #444',
+              borderTop: '2px solid #444',
               display: 'flex',
-              gap: '0.5rem'
+              gap: '0.75rem'
             }}>
               <input
                 type="text"
@@ -401,30 +566,62 @@ const VideoCall = () => {
                 placeholder="Type a message..."
                 style={{
                   flex: 1,
-                  padding: '0.5rem',
+                  padding: '0.75rem',
                   backgroundColor: '#3d3d3d',
-                  border: '1px solid #555',
-                  borderRadius: '4px',
-                  color: 'white'
+                  border: '2px solid #555',
+                  borderRadius: '8px',
+                  color: 'white',
+                  fontSize: '0.95rem',
+                  transition: 'all 0.3s ease'
+                }}
+                onFocus={(e) => {
+                  e.target.style.borderColor = '#aa8d6f';
+                  e.target.style.backgroundColor = '#4d4d4d';
+                }}
+                onBlur={(e) => {
+                  e.target.style.borderColor = '#555';
+                  e.target.style.backgroundColor = '#3d3d3d';
                 }}
               />
               <button
                 onClick={sendMessage}
                 style={{
-                  backgroundColor: '#007bff',
+                  background: 'linear-gradient(135deg, #aa8d6f 0%, #8b7355 100%)',
                   color: 'white',
                   border: 'none',
-                  padding: '0.5rem 1rem',
-                  borderRadius: '4px',
-                  cursor: 'pointer'
+                  padding: '0.75rem 1.25rem',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  fontWeight: '600',
+                  boxShadow: '0 4px 12px rgba(170,141,111,0.3)',
+                  transition: 'all 0.3s ease',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.transform = 'translateY(-2px)';
+                  e.target.style.boxShadow = '0 6px 16px rgba(170,141,111,0.4)';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.transform = 'translateY(0)';
+                  e.target.style.boxShadow = '0 4px 12px rgba(170,141,111,0.3)';
                 }}
               >
+                <i className="fas fa-paper-plane"></i>
                 Send
               </button>
             </div>
           </div>
         </div>
       </div>
+
+      <style>{`
+        @keyframes pulse {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.5; }
+        }
+      `}</style>
     </div>
   );
 };

@@ -6,6 +6,7 @@ import UserLogin from './pages/UserLogin';
 import AdminLogin from './pages/AdminLogin';
 import UserRegister from './pages/UserRegister';
 import AdminRegister from './pages/AdminRegister';
+import ForgotPassword from './pages/ForgotPassword';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import UserDashboard from './pages/user/UserDashboard';
 
@@ -30,6 +31,7 @@ function App() {
             <Route path="/admin-login" element={<AdminLogin />} />
             <Route path="/user-register" element={<UserRegister />} />
             <Route path="/admin-register" element={<AdminRegister />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route 
               path="/admin/*" 
               element={
