@@ -8,7 +8,7 @@ RUN cd frontend && npm install
 
 # Copy and build frontend
 COPY frontend/ ./frontend/
-RUN cd frontend && npx react-scripts build
+RUN cd frontend && chmod +x node_modules/.bin/react-scripts && ./node_modules/.bin/react-scripts build
 
 # Copy and install backend dependencies
 COPY backend/package*.json ./backend/
