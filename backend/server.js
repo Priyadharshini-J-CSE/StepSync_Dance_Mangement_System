@@ -36,7 +36,11 @@ app.get('*', (req, res) => {
 });
 
 // MongoDB connection
-mongoose.connect(process.env.MONGODB_URI, {
+const mongoUri = process.env.MONGODB_URI || 'mongodb+srv://priyadharshinij2024cse:wrlp0012@practicemangodb.smb9f4.mongodb.net/danceManagement?retryWrites=true&w=majority&appName=PracticeMangoDB';
+
+console.log('MongoDB URI:', mongoUri ? 'URI found' : 'URI missing');
+
+mongoose.connect(mongoUri, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
   serverSelectionTimeoutMS: 5000,
