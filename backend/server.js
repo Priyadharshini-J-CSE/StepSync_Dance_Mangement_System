@@ -49,8 +49,7 @@ mongoose.connect(cleanUri, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
   serverSelectionTimeoutMS: 5000,
-  socketTimeoutMS: 45000,
-  bufferMaxEntries: 0
+  socketTimeoutMS: 45000
 })
   .then(() => console.log('MongoDB connected successfully'))
   .catch(err => {
