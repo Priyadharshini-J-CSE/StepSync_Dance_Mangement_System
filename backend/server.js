@@ -38,9 +38,14 @@ app.get('*', (req, res) => {
 // MongoDB connection
 const mongoUri = process.env.MONGODB_URI || 'mongodb+srv://priyadharshinij2024cse:wrlp0012@practicemangodb.smb9f4.mongodb.net/danceManagement?retryWrites=true&w=majority&appName=PracticeMangoDB';
 
-console.log('MongoDB URI:', mongoUri ? 'URI found' : 'URI missing');
+console.log('MongoDB URI length:', mongoUri.length);
+console.log('MongoDB URI starts with:', mongoUri.substring(0, 20));
+console.log('MongoDB URI first char code:', mongoUri.charCodeAt(0));
 
-mongoose.connect(mongoUri, {
+// Clean the URI of any potential invisible characters
+const cleanUri = mongoUri.trim().replace(/[\u200B-\u200D\uFEFF]/g, '');
+
+mongoose.connect(cleanUri, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
   serverSelectionTimeoutMS: 5000,
