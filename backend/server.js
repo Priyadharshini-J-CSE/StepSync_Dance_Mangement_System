@@ -18,23 +18,10 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Routes
-app.get('/', (req, res) => {
-  res.json({ 
-    message: 'StepSync Dance Management System API', 
-    status: 'Server is running',
-    endpoints: {
-      auth: '/api/auth',
-      classes: '/api/classes',
-      attendance: '/api/attendance',
-      notifications: '/api/notifications',
-      payments: '/api/payments',
-      feedback: '/api/feedback',
-      meetingLinks: '/api/meeting-links'
-    }
-  });
-});
+// Serve static files from React build
+app.use(express.static(path.join(__dirname, '../frontend/build')));
 
+// API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/classes', classRoutes);
 app.use('/api/attendance', attendanceRoutes);
@@ -43,14 +30,10 @@ app.use('/api/payments', paymentRoutes);
 app.use('/api/feedback', feedbackRoutes);
 app.use('/api/meeting-links', meetingLinkRoutes);
 
-// Serve static files from React build
-if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, '../frontend/build')));
-  
-  app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../frontend/build', 'index.html'));
-  });
-}
+// Catch all handler for React app
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/build', 'index.html'));
+});
 
 // MongoDB connection (main database for authentication)
 mongoose.connect(process.env.MONGODB_URI)
