@@ -1,9 +1,9 @@
 services:
   - type: web
-    name: dance-management-backend
+    name: stepsync-fullstack
     env: node
     plan: free
-    buildCommand: cd backend && npm install
+    buildCommand: cd frontend && npm install && npm run build && cd ../backend && npm install
     startCommand: cd backend && npm start
     envVars:
       - key: NODE_ENV
