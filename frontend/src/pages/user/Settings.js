@@ -53,7 +53,7 @@ const Settings = () => {
     setAlert({ message: 'Settings saved successfully!', type: 'success' });
   };
 
-  const handlePasswordSubmit = (e) => {
+  const handlePasswordSubmit = async (e) => {
     e.preventDefault();
     
     if (passwordData.newPassword !== passwordData.confirmPassword) {
@@ -66,12 +66,35 @@ const Settings = () => {
       return;
     }
 
-    setAlert({ message: 'Password changed successfully!', type: 'success' });
-    setPasswordData({
-      currentPassword: '',
-      newPassword: '',
-      confirmPassword: ''
-    });
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch('/api/auth/change-password', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          currentPassword: passwordData.currentPassword,
+          newPassword: passwordData.newPassword
+        })
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setAlert({ message: 'Password changed successfully!', type: 'success' });
+        setPasswordData({
+          currentPassword: '',
+          newPassword: '',
+          confirmPassword: ''
+        });
+      } else {
+        setAlert({ message: data.message || 'Failed to change password', type: 'error' });
+      }
+    } catch (error) {
+      setAlert({ message: 'Failed to change password', type: 'error' });
+    }
   };
 
   const handleExportData = () => {
@@ -400,8 +423,9 @@ const Settings = () => {
             ))}
           </div>
 
-          <button
-            onClick={handlePasswordSubmit}
+          <form onSubmit={handlePasswordSubmit}>
+            <button
+              type="submit"
             style={{
               background: 'linear-gradient(135deg, #28a745 0%, #1e7e34 100%)',
               color: 'white',
@@ -430,6 +454,7 @@ const Settings = () => {
             <i className="fas fa-check"></i>
             Change Password
           </button>
+          </form>
         </div>
       </div>
 

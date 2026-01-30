@@ -17,6 +17,10 @@ const classSchema = new mongoose.Schema({
   }],
   mode: { type: String, enum: ['online', 'offline'], default: 'offline' },
   meetingLink: String,
+  location: {
+    address: String,
+    mapLink: String
+  },
   isActive: { type: Boolean, default: true },
   createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   createdAt: { type: Date, default: Date.now }

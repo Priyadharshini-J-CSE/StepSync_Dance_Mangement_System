@@ -16,8 +16,9 @@ class DatabaseManager {
       connection = await this.getMainConnection();
     } else {
       const dbName = `dance-management-${adminId}`;
+      const atlasUri = process.env.MONGODB_URI.replace('/dance-class-management-system', `/${dbName}`);
       connection = mongoose.createConnection(
-        `mongodb://localhost:27017/${dbName}`,
+        atlasUri,
         {
           useNewUrlParser: true,
           useUnifiedTopology: true,

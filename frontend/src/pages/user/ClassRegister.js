@@ -8,6 +8,7 @@ const ClassRegister = () => {
   const [myRequests, setMyRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [alert, setAlert] = useState(null);
+  const [selectedLocation, setSelectedLocation] = useState('all');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -67,6 +68,21 @@ const ClassRegister = () => {
     );
   });
 
+  // Get unique locations from classes
+  const availableLocations = [...new Set(
+    availableClasses.map(classItem => 
+      classItem.mode === 'online' ? 'Online' : (classItem.location?.address || 'No Location')
+    )
+  )].sort();
+
+  // Filter classes by selected location
+  const filteredClasses = selectedLocation === 'all' 
+    ? availableClasses 
+    : availableClasses.filter(classItem => {
+        const classLocation = classItem.mode === 'online' ? 'Online' : (classItem.location?.address || 'No Location');
+        return classLocation === selectedLocation;
+      });
+
   const getStatusColor = (status) => {
     switch (status) {
       case 'pending': return '#ffc107';
@@ -103,25 +119,45 @@ const ClassRegister = () => {
 
   return (
     <div style={{ padding: '1.5rem' }}>
-      <h2 style={{ 
-        color: '#675541', 
-        fontSize: '2.5rem', 
-        marginBottom: '2rem',
-        fontWeight: '700',
-        textAlign: 'center',
-        textShadow: '2px 2px 4px rgba(103,85,65,0.1)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: '0.75rem'
-      }}>
-        <i className="fas fa-graduation-cap"></i>
-        Available Zumba Classes
-      </h2>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+        <h2 style={{ 
+          color: '#675541', 
+          fontSize: '2.5rem', 
+          fontWeight: '700',
+          textShadow: '2px 2px 4px rgba(103,85,65,0.1)',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.75rem',
+          margin: 0
+        }}>
+          <i className="fas fa-graduation-cap"></i>
+          Available Zumba Classes
+        </h2>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <label style={{ fontWeight: '600', color: '#675541' }}>Filter by Location:</label>
+          <select
+            value={selectedLocation}
+            onChange={(e) => setSelectedLocation(e.target.value)}
+            style={{
+              padding: '0.5rem',
+              border: '2px solid rgba(170,141,111,0.3)',
+              borderRadius: '6px',
+              fontSize: '0.9rem',
+              backgroundColor: 'white',
+              cursor: 'pointer'
+            }}
+          >
+            <option value="all">All Locations</option>
+            {availableLocations.map(location => (
+              <option key={location} value={location}>{location}</option>
+            ))}
+          </select>
+        </div>
+      </div>
 
       {alert && <Alert message={alert.message} type={alert.type} onClose={() => setAlert(null)} />}
       
-      {availableClasses.length === 0 ? (
+      {filteredClasses.length === 0 ? (
         <div style={{
           textAlign: 'center',
           padding: '4rem 2rem',
@@ -142,7 +178,7 @@ const ClassRegister = () => {
           marginTop: '2rem',
           gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))'
         }}>
-          {availableClasses.map(classItem => (
+          {filteredClasses.map(classItem => (
             <div key={classItem._id} style={{
               background: 'linear-gradient(135deg, #ffffff 0%, #faf8f6 100%)',
               padding: '2rem',
@@ -224,6 +260,28 @@ const ClassRegister = () => {
                     {classItem.enrolled?.length || 0}/{classItem.capacity}
                   </span>
                 </div>
+                {classItem.mode === 'offline' && classItem.location?.address && (
+                  <div style={{ marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <i className="fas fa-map-marker-alt" style={{ color: '#aa8d6f', width: '20px' }}></i>
+                    <strong style={{ color: '#675541' }}>Location:</strong> 
+                    <span style={{ color: '#666' }}>{classItem.location.address}</span>
+                    {classItem.location.mapLink && (
+                      <a
+                        href={classItem.location.mapLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{
+                          marginLeft: '0.5rem',
+                          color: '#007bff',
+                          textDecoration: 'none',
+                          fontSize: '0.9rem'
+                        }}
+                      >
+                        📍 View Map
+                      </a>
+                    )}
+                  </div>
+                )}
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                   <i className="fas fa-calendar-week" style={{ color: '#aa8d6f', width: '20px' }}></i>
                   <strong style={{ color: '#675541' }}>Days:</strong> 

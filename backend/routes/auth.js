@@ -254,4 +254,72 @@ router.put('/assign-admin', auth, async (req, res) => {
   }
 });
 
+// Forgot password
+router.post('/forgot-password', [
+  body('email').isEmail().withMessage('Valid email is required')
+], async (req, res) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { email } = req.body;
+    const user = await User.findOne({ email });
+    
+    if (!user) {
+      return res.status(404).json({ message: 'User not found with this email address' });
+    }
+
+    // Generate reset token (in production, use crypto.randomBytes)
+    const resetToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    
+    // In a real application, you would:
+    // 1. Save the reset token to database with expiration
+    // 2. Send email with reset link
+    // For demo purposes, we'll just return success
+    
+    res.json({ 
+      message: 'Password reset instructions have been sent to your email address',
+      resetToken // In production, don't return this - send via email
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Reset password
+router.post('/reset-password', [
+  body('token').notEmpty().withMessage('Reset token is required'),
+  body('newPassword').isLength({ min: 6 }).withMessage('Password must be at least 6 characters')
+], async (req, res) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { token, newPassword } = req.body;
+    
+    // Verify reset token
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findById(decoded.id);
+    
+    if (!user) {
+      return res.status(404).json({ message: 'Invalid or expired reset token' });
+    }
+
+    // Update password
+    user.password = newPassword;
+    await user.save();
+    
+    res.json({ message: 'Password has been reset successfully' });
+  } catch (error) {
+    if (error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError') {
+      return res.status(400).json({ message: 'Invalid or expired reset token' });
+    }
+    res.status(500).json({ message: error.message });
+  }
+});
+
 module.exports = router;

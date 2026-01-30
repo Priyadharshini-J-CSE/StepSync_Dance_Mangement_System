@@ -1,0 +1,77 @@
+@media (max-width: 768px) {
+  div[style*="grid-template-columns"] {
+    grid-template-columns: 1fr !important;
+  }
+  
+  div[style*="display: flex"] {
+    flex-wrap: wrap !important;
+  }
+  
+  div[style*="padding: 2rem"],
+  div[style*="padding: 2.5rem"],
+  div[style*="padding: 3rem"] {
+    padding: 1rem !important;
+  }
+  
+  h1[style*="font-size"] {
+    font-size: 1.8rem !important;
+  }
+  
+  h2[style*="font-size"] {
+    font-size: 1.5rem !important;
+  }
+  
+  h3[style*="font-size"] {
+    font-size: 1.3rem !important;
+  }
+  
+  form[style*="width: 600px"],
+  form[style*="width: 500px"] {
+    width: 95vw !important;
+    max-width: none !important;
+  }
+  
+  button {
+    min-width: auto !important;
+    width: 100% !important;
+    margin-bottom: 0.5rem !important;
+  }
+  
+  input, textarea, select {
+    font-size: 16px !important;
+  }
+  
+  div[style*="gridTemplateColumns"] {
+    grid-template-columns: 1fr !important;
+  }
+  
+  nav div[style*="display: flex"] {
+    flex-direction: column !important;
+    gap: 1rem !important;
+  }
+  
+  div[style*="justify-content: space-between"] {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 1rem !important;
+  }
+}
+
+@media (max-width: 480px) {
+  body {
+    font-size: 14px !important;
+  }
+  
+  div[style*="padding"] {
+    padding: 0.5rem !important;
+  }
+  
+  button {
+    padding: 0.5rem 1rem !important;
+    font-size: 0.9rem !important;
+  }
+  
+  input, textarea, select {
+    padding: 0.5rem !important;
+  }
+}
