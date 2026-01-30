@@ -3,7 +3,6 @@ const jwt = require('jsonwebtoken');
 const { body, validationResult } = require('express-validator');
 const User = require('../models/User');
 const { auth } = require('../middleware/auth');
-const DatabaseManager = require('../config/database');
 
 const router = express.Router();
 
@@ -48,11 +47,6 @@ router.post('/register', [
       status: role === 'admin' ? 'active' : 'inactive'
     });
     await user.save();
-
-    // If admin, create their database
-    if (role === 'admin') {
-      await DatabaseManager.getConnection(user._id.toString());
-    }
 
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
     
