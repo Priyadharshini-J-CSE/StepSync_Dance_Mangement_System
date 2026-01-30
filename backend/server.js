@@ -18,6 +18,22 @@ app.use(cors());
 app.use(express.json());
 
 // Routes
+app.get('/', (req, res) => {
+  res.json({ 
+    message: 'StepSync Dance Management System API', 
+    status: 'Server is running',
+    endpoints: {
+      auth: '/api/auth',
+      classes: '/api/classes',
+      attendance: '/api/attendance',
+      notifications: '/api/notifications',
+      payments: '/api/payments',
+      feedback: '/api/feedback',
+      meetingLinks: '/api/meeting-links'
+    }
+  });
+});
+
 app.use('/api/auth', authRoutes);
 app.use('/api/classes', classRoutes);
 app.use('/api/attendance', attendanceRoutes);
